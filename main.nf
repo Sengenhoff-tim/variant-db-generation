@@ -29,6 +29,10 @@ workflow NFCORELIKE_VARIANT-DB-GENERATION {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    uniprot_entries
+    mapping_uniprot
+    mapping_func
+    mapping_fargs
 
     main:
 
@@ -37,6 +41,10 @@ workflow NFCORELIKE_VARIANT-DB-GENERATION {
     //
     VARIANT-DB-GENERATION (
         samplesheet
+        uniprot_entries
+        mapping_uniprot
+        mapping_func
+        mapping_fargs
     )
 }
 /*
