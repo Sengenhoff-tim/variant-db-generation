@@ -16,7 +16,7 @@ include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow VARIANT-DB-GENERATION {
+workflow VARIANT_DB_GENERATION {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input

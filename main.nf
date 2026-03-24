@@ -13,7 +13,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { VARIANT-DB-GENERATION  } from './workflows/variant-db-generation'
+include { VARIANT_DB_GENERATION  } from './workflows/variant-db-generation'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_variant-db-generation_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_variant-db-generation_pipeline'
 /*
@@ -25,7 +25,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_vari
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow NFCORELIKE_VARIANT-DB-GENERATION {
+workflow NFCORELIKE_VARIANT_DB_GENERATION {
 
     take:
     samplesheet // channel: samplesheet read in from --input
@@ -35,7 +35,7 @@ workflow NFCORELIKE_VARIANT-DB-GENERATION {
     //
     // WORKFLOW: Run pipeline
     //
-    VARIANT-DB-GENERATION (
+    VARIANT_DB_GENERATION (
         samplesheet
     )
 }
@@ -66,7 +66,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    NFCORELIKE_VARIANT-DB-GENERATION (
+    NFCORELIKE_VARIANT_DB_GENERATION (
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
