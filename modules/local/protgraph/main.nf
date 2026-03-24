@@ -62,6 +62,8 @@ process PROTGRAPH {
     protgraph ${args} --pep_sqlite_database ${prefix}.db ${input}
 
     protgraph_pepsqlite_to_fasta -o ${prefix}.fasta ${prefix}.db
+
+    gzip ${prefix}.fasta
     """
     
     stub:

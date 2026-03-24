@@ -82,7 +82,7 @@ def process_amino_acid_change(aa_change: str) -> str:
                 raise ValueError(f"Unexpected amino-acid-change format: {change!r} in {aa_change!r}")
     return "".join(aa_formatted)
 
-def sam_spec_db_reader(aa_file: Path, id_mapping_file: str) -> Dict[str, str]:
+def file_reader(aa_file: Path, id_mapping_file: str) -> Dict[str, str]:
     ensure_file(id_mapping_file)
     id_map = read_id_map(id_mapping_file, buffer_size=io.DEFAULT_BUFFER_SIZE, encoding='utf-8')
     aa_dict = map_aas(aa_file, id_map, buffer_size=io.DEFAULT_BUFFER_SIZE, encoding='utf-8')

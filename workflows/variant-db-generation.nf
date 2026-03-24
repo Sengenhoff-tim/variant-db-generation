@@ -6,6 +6,9 @@
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_variant-db-generation_pipeline'
+include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
+include { FILTERMAPPING } from '../modules/local/filtermapping/main.nf'
+include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,6 +23,10 @@ workflow VARIANT-DB-GENERATION {
     main:
 
     ch_versions = channel.empty()
+
+    FILTERMAPPING(ch_samplesheet)
+    ADDVARIANTS()
+    PROTGRAPH()
 
     //
     // Collate and save software versions

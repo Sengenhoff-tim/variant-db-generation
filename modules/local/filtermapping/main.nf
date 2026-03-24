@@ -15,7 +15,7 @@
 // TODO nf-core: Optional inputs are not currently supported by Nextflow. However, using an empty
 //               list (`[]`) instead of a file can be used to work around this issue.
 
-process FILTERINDEX {
+process FILTERMAPPING {
     tag "$meta.id"
     label 'process_single'
 
@@ -40,7 +40,7 @@ process FILTERINDEX {
     // TODO nf-core: Update the command here to obtain the version number of the software used in this module
     // TODO nf-core: If multiple software packages are used in this module, all MUST be added here
     //               by copying the line below and replacing the current tool with the extra tool(s)
-    tuple val("${task.process}"), val('filterindex'), eval("filterindex --version"), topic: versions, emit: versions_filterindex
+    tuple val("${task.process}"), val('filtermapping'), eval("filtermapping --version"), topic: versions, emit: versions_filtermapping
 
     when:
     task.ext.when == null || task.ext.when
@@ -58,7 +58,7 @@ process FILTERINDEX {
     // TODO nf-core: Please replace the example samtools command below with your module's command
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
-    gzip -cdf ${input} | awk '{if($2=="Ensembl_TRS") print $3 " " $1}' | gzip > ${prefix}.txt.gz
+    gzip -cdf ${input} | awk ${args} | gzip > ${prefix}.txt.gz
     """
 
     stub:

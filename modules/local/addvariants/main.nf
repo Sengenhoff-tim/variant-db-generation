@@ -31,7 +31,7 @@ process ADDVARIANTS {
     //               https://github.com/nf-core/modules/blob/master/modules/nf-core/bwa/index/main.nf
     // TODO nf-core: Where applicable please provide/convert compressed files as input/output
     //               e.g. "*.fastq.gz" and NOT "*.fastq", "*.bam" and NOT "*.sam" etc.
-    tuple val(meta), path(input), path(path(mapping), val(func), val(fargs)
+    tuple val(meta), path(input)
 
     output:
     // TODO nf-core: Named file extensions MUST be emitted for ALL output channels
@@ -60,10 +60,9 @@ process ADDVARIANTS {
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
     """
     gzip -cdf ${input} |\
-    python3 ${args}entry_builder.py\
-        --aa_changes_file input_test\
-        --aa_change_func ${args}${args2}\
-        --aa_change_fargs '["idmap_test"]' |\
+    python3 ${workflow.projectDir}/assets/python/entry_builder.py\
+        --aa_changes_file input_test \
+        ${args} |\
     gzip > ${prefix}.txt.gz
     """
 

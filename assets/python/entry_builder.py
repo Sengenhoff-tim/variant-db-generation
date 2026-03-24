@@ -2,6 +2,7 @@
 import argparse
 import sys
 import importlib
+import os
 import json
 from typing import Callable, Dict, Any
 from pathlib import Path
@@ -36,20 +37,30 @@ def resolve_callable(func_spec: str) -> Callable[..., Any]:
     if not func_spec:
         raise Exception("empty function spec")
 
-    mod_name, _, fn_name = func_spec.replace(':', '.').rpartition('.')
-    if not mod_name:
-        try:
-            return globals()[fn_name]
-        except KeyError:
-            raise Exception(f"function not found: {func_spec!r} (no module specified)")
+    if ':' in func_spec:
+        path, fn_name = func_spec.rsplit(':', 1)
+    else:
+        path, fn_name = func_spec.rsplit('.', 1)
+
+    path = os.path.abspath(path)
+    if not os.path.isfile(path):
+        raise Exception(f"file not found: {path!r}")
+
+    module_name = f"_dynamic_module_{abs(hash(path))}"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise Exception(f"could not load spec for {path!r}")
+
+    module = importlib.util.module_from_spec(spec)
     try:
-        mod = importlib.import_module(mod_name)
-    except ImportError as e:
-        raise Exception(f"failed to import module {mod_name!r}: {e}") from e
+        spec.loader.exec_module(module)
+    except Exception as e:
+        raise Exception(f"failed to execute module {path!r}: {e}") from e
+
     try:
-        return getattr(mod, fn_name)
+        return getattr(module, fn_name)
     except AttributeError:
-        raise Exception(f"module {mod_name!r} has no attribute {fn_name!r}")
+        raise Exception(f"module loaded from {path!r} has no attribute {fn_name!r}")
 
 def ensure_file(path_str: str) -> Path:
     try:
@@ -70,7 +81,13 @@ def die(message: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--aa_changes_file', '-i', default='', help='path to aa changes file')
-    parser.add_argument('--aa_change_func', '-f', required=True, help='function to call, e.g. module.func')
+    parser.add_argument(
+        '--aa_change_func', '-f',
+        required=True,
+        metavar='FILE:FUNC',
+        help='function to call, e.g. /full/path/to/test.py:tesstfunc (or dir/subdir/test.py.tesstfunc)'
+        )
+
     parser.add_argument('--aa_change_fargs', '-a', default='[]', help='JSON list of positional arguments')
     args = parser.parse_args()
 
