@@ -24,14 +24,14 @@ workflow VARIANT_DB_GENERATION {
 
     ch_versions = channel.empty()
 
-    FILTERMAPPING(ch_samplesheet)
-    ADDVARIANTS()
-    PROTGRAPH()
+    FILTERMAPPING("${workflow.projectDir}/assets/HUMAN_9606_idmapping.dat.gz")
+    variants = ADDVARIANTS(ch_samplesheet)
+    PROTGRAPH(variants.out.path)
 
     //
     // Collate and save software versions
     //
-    def topic_versions = Channel.topic("versions")
+    def topic_versions = channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path

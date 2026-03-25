@@ -1,0 +1,24 @@
+>ENST00000379370_1
+variant_index: 1; 2; 3; 4; 5; 6; 7
+variant_locus: 1:1022316 A>T; 1:1022324 A>C; 1:1022328 G>T; 1:1022336 A>T; 1:1042006 G>T; 1:1044255 C>A; 1:1044255 C>A
+amino_acid_change: 106Q>L; 109T>P; 110G>V; 113R>W; 705P>X
+gene: AGRN; AGRN; AGRN; AGRN; AGRN; AGRN; AGRN
+caller: bcftools
+>ENST00000304952_1
+variant_index: 1
+variant_locus: 1:999198 C>T
+amino_acid_change: 176R>176H
+gene: HES4
+caller: bcftools
+>ENST00000428771_1
+variant_index: 1
+variant_locus: 1:999198 C>T
+amino_acid_change: 202R>202H
+gene: HES4
+caller: bcftools
+>ENST00000327044_1
+variant_index: 1
+variant_locus: 1:953279 T>C
+amino_acid_change: 288D>G
+gene: NOC2L
+caller: bcftools
