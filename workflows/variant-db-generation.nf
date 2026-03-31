@@ -24,7 +24,7 @@ workflow VARIANT_DB_GENERATION {
 
     ch_versions = channel.empty()
 
-    GETUNIPROT("https://rest.uniprot.org/uniprotkb/O95905.txt")
+    GETUNIPROT("https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=txt&query=%28ENST00000327044%29")
     ADDVARIANTS(ch_samplesheet, GETUNIPROT.out.gz)
 
     //
