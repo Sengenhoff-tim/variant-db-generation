@@ -7,7 +7,7 @@ include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_variant-db-generation_pipeline'
 include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
-include { FILTERMAPPING } from '../modules/local/filtermapping/main.nf'
+include { GETUNIPROT } from '../modules/local/getuniprot/main.nf'
 include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 
 /*
@@ -24,9 +24,8 @@ workflow VARIANT_DB_GENERATION {
 
     ch_versions = channel.empty()
 
-    FILTERMAPPING("${workflow.projectDir}/assets/HUMAN_9606_idmapping.dat.gz")
-    variants = ADDVARIANTS(ch_samplesheet)
-    PROTGRAPH(variants.out.path)
+    GETUNIPROT("https://rest.uniprot.org/uniprotkb/O95905.txt")
+    ADDVARIANTS(ch_samplesheet, GETUNIPROT.out.gz)
 
     //
     // Collate and save software versions

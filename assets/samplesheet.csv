@@ -1,2 +1,2 @@
-sample, aa_changes
-SAMPLE, /path/to/aa/change/file
+sample, aa_changes_vcf
+SAMPLE, /path/to/aa/change/file.vcf(.gz)

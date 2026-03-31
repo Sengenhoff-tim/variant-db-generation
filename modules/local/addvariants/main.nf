@@ -16,6 +16,7 @@ process ADDVARIANTS {
 
     input:
     tuple val(meta), path(input)
+    path(uniprot_entries)
 
     output:
     tuple val(meta), path("*_wvariants.txt.gz"), emit: gz // TODO .txt or .gz: unclear
@@ -25,7 +26,7 @@ process ADDVARIANTS {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
+    // def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     // TODO nf-core: It MUST be possible to pass additional parameters to the tool as a command-line string via the "task.ext.args" directive
     // TODO nf-core: If the tool supports multi-threading then you MUST provide the appropriate parameter
@@ -33,15 +34,14 @@ process ADDVARIANTS {
     
     //TODO check how to access scripts in in bin
     """
-    gzip -cdf ${workflow.projectDir}/assets/test_run/uniprotkb_ENST00000304952_OR_ENST000003_2026_03_19.txt.gz |\
-        python3 ${workflow.projectDir}/bin/entry_builder.py\
+    gzip -cdf ${uniprot_entries} | \
+        python3 entry_builder.py \
             --aa_changes_file ${input} \
-            ${args} |\
-        gzip > ${prefix}_wvariants.txt.gz
+    gzip > ${prefix}_wvariants.txt.gz
     """
 
     stub:
-    def args = task.ext.args ?: ''
+    // def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     echo $args
