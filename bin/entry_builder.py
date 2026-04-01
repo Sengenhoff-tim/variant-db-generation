@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import sys
+import re
 from typing import Dict
 from aa_dict_builder import build_aa_dict
 from utilities import die, ensure_file
@@ -8,15 +9,24 @@ from utilities import die, ensure_file
 ENSEMBL_ID = 'DR   Ensembl;'
 SQ_LINE_PREFIX = 'SQ'
 
+REGEX_ENST = re.compile(r'^ENST\d{11}(?:\.\d+)?$')
+
 def add_variants(insert_map: Dict[str, str]) -> None:
     insert = None
     out = sys.stdout
     for line in sys.stdin:
         if line.startswith(ENSEMBL_ID):
-            parts = line.split()
-            if len(parts) >= 2:
-                key = parts[2].rstrip(';').split('.', 1)[0]
-                insert = insert_map.pop(key, None)
+            tokens = line.split()
+            parts_to_append = []
+            for token in tokens:
+                t = token.rstrip(';')
+                if REGEX_ENST.match(t):
+                    key = t.split('.', 1)[0]
+                    val = insert_map.pop(key, None)
+                    if val is not None:
+                        parts_to_append.append(val)
+            if parts_to_append:
+                insert = (insert or "") + "".join(parts_to_append)
         if line.startswith(SQ_LINE_PREFIX):
             if insert is not None:
                 out.write(insert)
