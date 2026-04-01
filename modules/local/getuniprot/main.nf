@@ -50,10 +50,12 @@ process GETUNIPROT {
     // TODO nf-core: Please indent the command appropriately (4 spaces!!) to help with readability ;)
    
     // TODO fix ouput
+
+    // wget -qO- ${uniprot_download_link} | \
     """
-        wget -qO- ${uniprot_download_link} | \
+        wget -qO- "${uniprot_download_link}" | \
         gzip -cdf | \
-        python3 uniprot_trimmer.py | \
+        uniprot_trimmer.py | \
         gzip > "${uniprot_filename}.gz"
     """
 

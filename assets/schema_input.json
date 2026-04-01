@@ -17,7 +17,7 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.txt\\.gz$",
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.vcf\\.gz$",
                 "errorMessage": "Text file containing reference proteome must be provided and must have extension '.txt.gz'"
             }
         },

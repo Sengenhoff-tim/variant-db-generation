@@ -3,7 +3,7 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { paramsSummaryMap       } from 'plugin/nf-schema'
+//include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_variant-db-generation_pipeline'
 include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
@@ -24,7 +24,7 @@ workflow VARIANT_DB_GENERATION {
 
     ch_versions = channel.empty()
 
-    GETUNIPROT("https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=txt&query=%28ENST00000327044%29")
+    GETUNIPROT("https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=txt&query=%28ENST00000327044%29", "test")
     ADDVARIANTS(ch_samplesheet, GETUNIPROT.out.gz)
 
     //

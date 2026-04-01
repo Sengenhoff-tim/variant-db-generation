@@ -35,8 +35,8 @@ process ADDVARIANTS {
     //TODO check how to access scripts in in bin
     """
     gzip -cdf ${uniprot_entries} | \
-        python3 entry_builder.py \
-            --aa_changes_file ${input} \
+    entry_builder.py \
+        --aa_changes_file ${input} | \
     gzip > ${prefix}_wvariants.txt.gz
     """
 

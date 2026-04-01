@@ -63,6 +63,7 @@ def read_header(reader: io.TextIOWrapper) -> Dict[str, int]:
 
 def read_body(reader: io.TextIOWrapper, indexes: Dict[str, int]) -> Dict[str, str]:
     aa_changes: Dict[str, str] = {}
+
     for line in reader:
         line = line.rstrip('\n')
         if not line or line.startswith('#'):
@@ -80,7 +81,6 @@ def read_body(reader: io.TextIOWrapper, indexes: Dict[str, int]) -> Dict[str, st
         csq_value = info_field[csq_index:]
         if not csq_value:
             continue
-
         line_variants = csq_value.split(',')
         for variant in line_variants:
             variant_fields = variant.split('|')

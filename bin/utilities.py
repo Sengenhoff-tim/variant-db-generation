@@ -14,13 +14,12 @@ def ensure_file(path_str: str) -> Path:
         raise IsADirectoryError(f"not a file: {p}")
     return p
 
-def open_buffered(path: str, buffer_size: int = io.DEFAULT_BUFFER_SIZE, encoding: str='utf-8') -> io.TextIOWrapper:
+def open_buffered(path: str, encoding: str = 'utf-8') -> io.TextIOBase:
     p = Path(path)
     if p.suffix == '.gz':
-        raw = gzip.open(p, mode='rb')
+        return gzip.open(p, mode='rt', encoding=encoding)
     else:
-        raw = open(p, 'rb')
-    return io.TextIOWrapper(io.BufferedReader(raw, buffer_size=buffer_size), encoding)
+        return open(p, mode='rt', encoding=encoding)
 
 def die(message: str) -> None:
     sys.stderr.write(message.rstrip() + "\n")

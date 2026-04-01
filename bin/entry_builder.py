@@ -8,25 +8,22 @@ from utilities import die, ensure_file
 ENSEMBL_ID = 'DR   Ensembl;'
 SQ_LINE_PREFIX = 'SQ'
 
-def build_file(insert_map: Dict[str, str]) -> None:
+def add_variants(insert_map: Dict[str, str]) -> None:
     insert = None
     out = sys.stdout
     for line in sys.stdin:
-        if insert is None:
+        if line.startswith(ENSEMBL_ID):
+            parts = line.split()
+            if len(parts) >= 2:
+                key = parts[2].rstrip(';').split('.', 1)[0]
+                insert = insert_map.pop(key, None)
+        if line.startswith(SQ_LINE_PREFIX):
+            if insert is not None:
+                out.write(insert)
             out.write(line)
-            if line.startswith(ENSEMBL_ID):
-                parts = line.split()
-                if len(parts) >= 2:
-                    key = parts[1].rstrip(';')
-                    insert = insert_map.get(key)
+            insert = None
         else:
-            if line.startswith(SQ_LINE_PREFIX):
-                if insert is not None:
-                    out.write(insert)
-                out.write(line)
-                insert = None
-            else:
-                out.write(line)
+            out.write(line)
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -41,10 +38,11 @@ def main() -> None:
 
     try:
         insert_map = build_aa_dict(aa_filename)
+
     except Exception as e:
         die(str(e))
     try:
-        build_file(insert_map)
+        add_variants(insert_map)
     except Exception as e:
         die(f"Runtime error while building file: {e}")
 
