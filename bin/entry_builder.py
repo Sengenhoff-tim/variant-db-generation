@@ -6,7 +6,7 @@ from typing import Dict
 from aa_dict_builder import build_aa_dict
 from utilities import die, get_path
 
-ENSEMBL_ID = 'DR   Ensembl;'
+ENSEMBL_ID_LINE_PREFIX = 'DR   Ensembl;'
 SQ_LINE_PREFIX = 'SQ'
 
 REGEX_ENST = re.compile(r'^ENST\d{11}(?:\.\d+)?$')
@@ -15,7 +15,7 @@ def add_variants(insert_map: Dict[str, str]) -> None:
     insert = None
     out = sys.stdout
     for line in sys.stdin:
-        if line.startswith(ENSEMBL_ID):
+        if line.startswith(ENSEMBL_ID_LINE_PREFIX):
             tokens = line.split()
             parts_to_append = []
             for token in tokens:
