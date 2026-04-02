@@ -26,7 +26,7 @@ workflow VARIANT_DB_GENERATION {
 
     GETUNIPROT("https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=txt&query=%28ENST00000327044%29", "test")
     ADDVARIANTS(ch_samplesheet, GETUNIPROT.out.gz)
-
+    PROTGRAPH(ADDVARIANTS.out.gz)
     //
     // Collate and save software versions
     //
