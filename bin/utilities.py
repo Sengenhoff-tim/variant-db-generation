@@ -3,7 +3,7 @@ from pathlib import Path
 import io
 import sys
 
-def ensure_file(path_str: str) -> Path:
+def get_path(path_str: str) -> Path:
     try:
         p = Path(path_str).expanduser().resolve()
     except Exception as e:

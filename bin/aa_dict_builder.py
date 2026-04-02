@@ -1,7 +1,7 @@
 import io
 import re
 from typing import Dict, List
-from utilities import ensure_file, open_buffered
+from utilities import get_path, open_buffered
 
 STR_INFO = '##INFO='
 STR_INFO_CSQ = 'ID=CSQ'
@@ -9,15 +9,18 @@ STR_FORMAT = 'Description='
 STR_BODY_HEADER = '#CHROM'
 STR_CSQ = 'CSQ='
 
-STR_FEAT_TYPE_VALUE = 'Transcript'
 
-STR_FEAT_TYPE = 'Feature_type'
-STR_FEAT_NAME = 'Feature'
+# TODO  check if consequence is required
+#STR_CONSEQUENCE = 'Consequence'
+STR_TYPE = 'Feature_type'
+STR_FEAT = 'Feature'
 STR_PROTEIN_POSITION = 'Protein_position'
 STR_AA_CHANGE_SINGLE = 'Amino_acids'
 STR_AA_CHANGE_FRAMESHIFT = 'DownstreamProtein'
 
-LIST_RELEVANT_FIELDS = [STR_FEAT_TYPE, STR_FEAT_NAME, STR_PROTEIN_POSITION, STR_AA_CHANGE_SINGLE, STR_AA_CHANGE_FRAMESHIFT]
+STR_TYPE_VALUE = 'Transcript'
+
+LIST_RELEVANT_FIELDS = [STR_TYPE, STR_FEAT, STR_PROTEIN_POSITION, STR_AA_CHANGE_SINGLE, STR_AA_CHANGE_FRAMESHIFT]
 
 STR_FT_VARIANT_LINE = 'FT   VARIANT         {}\n'
 STR_FT_AA_CHANGE_LINE = 'FT                   /note="{} -> {}"\n'
@@ -89,17 +92,17 @@ def read_body(reader: io.TextIOWrapper, indexes: Dict[str, int]) -> Dict[str, st
 
 
 def add_variant_entry(aa_dict: Dict[str, str], variant_fields: List[str], field_indexes: Dict[str, int]) -> None:
-    feat_type_idx = field_indexes.get(STR_FEAT_TYPE)
+    feat_type_idx = field_indexes.get(STR_TYPE)
     if feat_type_idx is None:
         return
 
-    if variant_fields[feat_type_idx] != STR_FEAT_TYPE_VALUE:
+    if variant_fields[feat_type_idx] != STR_TYPE_VALUE:
         return
 
     aa_change_idx = field_indexes.get(STR_AA_CHANGE_SINGLE)
     frameshift_idx = field_indexes.get(STR_AA_CHANGE_FRAMESHIFT)
     pos_idx = field_indexes.get(STR_PROTEIN_POSITION)
-    name_idx = field_indexes.get(STR_FEAT_NAME)    
+    name_idx = field_indexes.get(STR_FEAT)    
 
     try:
         aa_change = re.match(REGEX_AA_CHANGE, variant_fields[aa_change_idx])
@@ -123,7 +126,7 @@ def add_variant_entry(aa_dict: Dict[str, str], variant_fields: List[str], field_
     aa_dict[feat_name] = aa_dict.get(feat_name, "") + s
 
 def build_aa_dict(vcf_file) -> Dict[str, str]:
-    ensure_file(vcf_file)
+    get_path(vcf_file)
     with open_buffered(vcf_file) as vcf_reader:
         field_indexes = read_header(vcf_reader)
         aa_mapping = read_body(vcf_reader, field_indexes)

@@ -4,7 +4,7 @@ import sys
 import re
 from typing import Dict
 from aa_dict_builder import build_aa_dict
-from utilities import die, ensure_file
+from utilities import die, get_path
 
 ENSEMBL_ID = 'DR   Ensembl;'
 SQ_LINE_PREFIX = 'SQ'
@@ -42,7 +42,7 @@ def main() -> None:
 
     aa_filename = args.aa_changes_file
     try:
-        ensure_file(aa_filename)
+        get_path(aa_filename)
     except Exception as e:
         die(str(e))
 
