@@ -17,7 +17,7 @@ def _post_batch(ids_batch: List[str]) -> Dict[str, str]:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             r = requests.post(SERVER + EXT, headers=HEADERS, json=payload, timeout=TIMEOUT)
-        except requests.RequestException as e:
+        except requests.RequestException:
             if attempt == MAX_RETRIES:
                 raise
             time.sleep(min(BACKOFF_MAX, BACKOFF_BASE * (2 ** (attempt - 1))))

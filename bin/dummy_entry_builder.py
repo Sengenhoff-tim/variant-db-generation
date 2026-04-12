@@ -1,5 +1,4 @@
 from datetime import datetime
-import random
 
 TODAY = datetime.now().strftime("%d-%b-%Y").upper()
 
