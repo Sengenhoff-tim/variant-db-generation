@@ -13,7 +13,8 @@ STR_CSQ = 'CSQ='
 # TODO  check if consequence is required
 #STR_CONSEQUENCE = 'Consequence'
 STR_TYPE = 'Feature_type'
-STR_FEAT = 'Feature'
+STR_FEAT = 'HGVSp'
+STR_GENE = 'Gene'
 STR_PROTEIN_POSITION = 'Protein_position'
 STR_AA_CHANGE_SINGLE = 'Amino_acids'
 STR_AA_CHANGE_FRAMESHIFT = 'DownstreamProtein'
@@ -22,12 +23,15 @@ STR_TYPE_VALUE = 'Transcript'
 
 LIST_RELEVANT_FIELDS = [STR_TYPE, STR_FEAT, STR_PROTEIN_POSITION, STR_AA_CHANGE_SINGLE, STR_AA_CHANGE_FRAMESHIFT]
 
-STR_FT_VARIANT_LINE = 'FT   VARIANT         {}\n'
-STR_FT_AA_CHANGE_LINE = 'FT                   /note="{} -> {}"\n'
-STR_FT_EVIDENCE_LINE = 'FT                   /evidence="%"\n'
+STR_VARIANT_ENTRY = (
+    'FT   VARIANT         {}\n'
+    'FT                   /note="{} -> {}"\n'
+    'FT                   /evidence="INSERTED"\n'
+)
 
 REGEX_HEADER_FORMAT = re.compile(r'Description="[^"]*?Format:\s*([^"]*?)"', re.IGNORECASE)
 REGEX_AA_CHANGE = re.compile(r'([A-Z])/([A-Z]+)')
+REGEX_ENSP = re.compile(r'^(ENSP[0-9]+)')
 
 def read_header(reader: io.TextIOWrapper) -> Dict[str, int]:
     field_map: List[str] = []
@@ -55,8 +59,11 @@ def read_header(reader: io.TextIOWrapper) -> Dict[str, int]:
 
     index_map: Dict[str, int] = {}
     for idx, field in enumerate(field_map):
-        if field in LIST_RELEVANT_FIELDS:
+        if field in LIST_RELEVANT_FIELDS and field not in index_map:
             index_map[field] = idx
+        # TODO check if first or last entry is correct: currently using first
+        #if field in LIST_RELEVANT_FIELDS:
+        #    index_map[field] = idx
 
     missing = [f for f in LIST_RELEVANT_FIELDS if f not in index_map]
     if missing:
@@ -106,24 +113,23 @@ def add_variant_entry(aa_dict: Dict[str, str], variant_fields: List[str], field_
 
     try:
         aa_change = re.match(REGEX_AA_CHANGE, variant_fields[aa_change_idx])
+        feat_match = re.match(REGEX_ENSP, variant_fields[name_idx].split('.', 1)[0])
     except IndexError:
         return
 
-    if not aa_change:
+    if not aa_change or not feat_match:
         return
 
     aa_old = aa_change.group(1)
     aa_new = variant_fields[frameshift_idx] if variant_fields[frameshift_idx] != '' else aa_change.group(2)
 
     position = variant_fields[pos_idx]
-    feat_name = variant_fields[name_idx]   
 
-    line1 = STR_FT_VARIANT_LINE.format(position)
-    line2 = STR_FT_AA_CHANGE_LINE.format(aa_old, aa_new)
-    line3 = STR_FT_EVIDENCE_LINE
+    feat_name = feat_match.group(1)
 
-    s = line1 + line2 + line3
-    aa_dict[feat_name] = aa_dict.get(feat_name, "") + s
+    variant_entry = STR_VARIANT_ENTRY.format(position, aa_old, aa_new)
+
+    aa_dict[feat_name] = aa_dict.get(feat_name, "") + variant_entry
 
 def build_aa_dict(vcf_file) -> Dict[str, str]:
     get_path(vcf_file)

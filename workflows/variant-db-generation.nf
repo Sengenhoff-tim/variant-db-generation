@@ -9,6 +9,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_vari
 include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
 include { GETUNIPROT } from '../modules/local/getuniprot/main.nf'
 include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
+include { CREATEPRECURSERFASTA } from '../modules/local/createprecurserfasta'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,8 +26,12 @@ workflow VARIANT_DB_GENERATION {
     ch_versions = channel.empty()
 
     GETUNIPROT("https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=txt&query=%28ENST00000327044%29", "test")
+    
     ADDVARIANTS(ch_samplesheet, GETUNIPROT.out.gz)
+    
     PROTGRAPH(ADDVARIANTS.out.gz)
+
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr)
     //
     // Collate and save software versions
     //

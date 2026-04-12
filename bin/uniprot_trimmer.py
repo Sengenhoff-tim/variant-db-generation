@@ -3,7 +3,7 @@ import sys
 
 KEEP = {'ID', 'AC', 'FT', 'SQ', '  ', 'DT', 'PE'}
 KEEP_DR = 'DR   Ensembl'
-RESET = '//'
+ENTRY_END = '//'
 
 TRUNC = {
     'DE': '   Truncated protein (TRUNC).\n',
@@ -28,7 +28,7 @@ def trim() -> None:
 
         code = line[:2]
 
-        if code == RESET:
+        if code == ENTRY_END:
             trunc_seen.clear()
             out(line)
             continue

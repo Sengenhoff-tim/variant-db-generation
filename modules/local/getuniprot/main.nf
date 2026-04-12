@@ -4,7 +4,7 @@ process GETUNIPROT {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.11':
-        'biocontainers/python:3.14' }"
+        'quay.io/biocontainers/python:3.14' }"
 
     input:
     val(uniprot_download_link)
@@ -35,6 +35,7 @@ process GETUNIPROT {
     // TODO fix ouput
 
     // wget -qO- ${uniprot_download_link} | \
+
     """
         wget -qO- "${uniprot_download_link}" | \
         gzip -cdf | \

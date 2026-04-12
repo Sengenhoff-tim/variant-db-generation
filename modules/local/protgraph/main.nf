@@ -11,7 +11,7 @@ process PROTGRAPH {
     tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path("${prefix}/database.bpcsr.gz"), emit: bpcsr
+    tuple val(meta), path("${prefix}/database.bpcsr"), emit: bpcsr
     tuple val("${task.process}"), val('protgraph'), val("0.3.12"), topic: versions, emit: versions_protgraph
 
     when:
@@ -28,12 +28,8 @@ process PROTGRAPH {
         gzip -cdf ${input} > ${prefix}.txt
 
         protgraph ${args} -eo ${prefix} ${prefix}.txt
-
-        rm ${prefix}.txt
-
-        gzip ${prefix}/database.bpcsr
     """
-    
+
     stub:
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"

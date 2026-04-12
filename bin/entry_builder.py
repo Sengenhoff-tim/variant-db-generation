@@ -3,13 +3,16 @@ import argparse
 import sys
 import re
 from typing import Dict
+
 from aa_dict_builder import build_aa_dict
 from utilities import die, get_path
+from dummy_entry_builder import build_dummy_entry
+from ensembl_sequence_getter import get_sequences_by_batch
 
 ENSEMBL_ID_LINE_PREFIX = 'DR   Ensembl;'
 SQ_LINE_PREFIX = 'SQ'
 
-REGEX_ENST = re.compile(r'^ENST\d{11}(?:\.\d+)?$')
+REGEX_ENST = re.compile(r'^ENSP\d{11}(?:\.\d+)?$')
 
 def add_variants(insert_map: Dict[str, str]) -> None:
     insert = None
@@ -34,6 +37,13 @@ def add_variants(insert_map: Dict[str, str]) -> None:
             insert = None
         else:
             out.write(line)
+    for batch_results in get_sequences_by_batch(list(insert_map.keys())):
+        for seq_id, seq in batch_results.items():
+            #TODO handle seq not found
+            if seq is None:
+                continue
+            out.write(build_dummy_entry(seq_id, len(seq), insert_map.get(seq_id), seq))
+        batch_results.clear()
 
 def main() -> None:
     parser = argparse.ArgumentParser()
