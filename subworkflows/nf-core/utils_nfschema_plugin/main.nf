@@ -2,7 +2,7 @@
 // Subworkflow that uses the nf-schema plugin to validate parameters and render the parameter summary
 //
 
-/*include { paramsSummaryLog   } from 'plugin/nf-schema'
+include { paramsSummaryLog   } from 'plugin/nf-schema'
 include { validateParameters } from 'plugin/nf-schema'
 include { paramsHelp         } from 'plugin/nf-schema'
 
@@ -71,5 +71,3 @@ workflow UTILS_NFSCHEMA_PLUGIN {
     emit:
     dummy_emit = true
 }
-
-*/
