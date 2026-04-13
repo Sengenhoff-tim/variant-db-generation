@@ -10,6 +10,7 @@ include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
 include { GETUNIPROT } from '../modules/local/getuniprot/main.nf'
 include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 include { CREATEPRECURSERFASTA } from '../modules/local/createprecurserfasta'
+include { COMPACTFASTA } from '../modules/local/compactfasta'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,6 +33,8 @@ workflow VARIANT_DB_GENERATION {
     PROTGRAPH(ADDVARIANTS.out.gz)
 
     CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr)
+
+    COMPACTFASTA(CREATEPRECURSERFASTA.out.fasta)
     //
     // Collate and save software versions
     //

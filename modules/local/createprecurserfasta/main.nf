@@ -41,7 +41,7 @@ process CREATEPRECURSERFASTA {
         ${args} \\
         1 \\
         ${prefix}2.fasta \\
-        ${workflow.projectDir}/assets/test_run/limits2.csv
+        ${workflow.projectDir}/assets/test_run/limits1.csv
     """
 
     stub:

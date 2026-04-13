@@ -4,8 +4,8 @@ process ADDVARIANTS {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/python:3.11':
-        'community.wave.seqera.io/library/python_pip_requests:6d51cec0ff6db028' }"
+        'TODO':
+        'community.wave.seqera.io/library/biopython_crcmod_python_requests:6bec89e659c2d117' }"
 
     input:
     tuple val(meta), path(input)

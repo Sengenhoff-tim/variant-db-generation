@@ -1,10 +1,20 @@
+import crcmod
+
 from datetime import datetime
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
+
+#TODO validate, which Uniprot fields are truly nessesary. mono weight and crc64 appear to change the order of the output. Further validation is required
+
 
 TODAY = datetime.now().strftime("%d-%b-%Y").upper()
+VALID = set("ACDEFGHIKLMNPQRSTVWY")
+POLY = 0x1000000000000001B
+
+get_crc64 = crcmod.mkCrcFun(POLY, initCrc=0, rev=False, xorOut=0)
 
 DUMMY_ENTRY = (
-     'ID   {}              Unreviewed;         {} AA.\n'
-     'AC   {};\n'
+     'ID   {dummy_ident}              Unreviewed;         {aa_count_head} AA.\n'
+     'AC   {dummy_accession};\n'
     f'DT   {TODAY}, integrated into DUMMY.\n'
     f'DT   {TODAY}, sequence version 1.\n'
     f'DT   {TODAY}, entry version 1.\n'
@@ -18,9 +28,9 @@ DUMMY_ENTRY = (
      'RA   dummy authors (DUMMY);\n'
      'RL   Unpublished (DUMMY).\n'
      'PE   4: Predicted;\n'
-     '{}'
-     'SQ   SEQUENCE {} AA; 10000 MW; 1000000000000000 CRC64;\n'
-     '{}\n'
+     '{variants}'
+     'SQ   SEQUENCE {aa_count_seq} AA; {mono_weight} MW; {crc64} CRC64;\n'
+     '{aa_seq}\n'
      '//\n'
 )
 
@@ -43,6 +53,18 @@ def format_sequence(seq: str) -> str:
         i += 60
     return '\n'.join(lines)
 
-
 def build_dummy_entry(str_seq_id, aa_count, str_variant, str_sequence) -> str:
-    return DUMMY_ENTRY.format(str_seq_id, aa_count, str_seq_id, str_variant, aa_count, format_sequence(str_sequence))
+    if not set(str_sequence).issubset(VALID):
+        raise ValueError("Invalid amino acids in sequence")
+    return DUMMY_ENTRY.format(
+        dummy_ident = str_seq_id,
+        aa_count_head = aa_count, 
+        dummy_accession = str_seq_id, 
+        variants = str_variant, 
+        aa_count_seq = aa_count, 
+        mono_weight = int(ProteinAnalysis(str_sequence).molecular_weight()),
+        #mono_weight = 10000,
+        crc64 = f"{get_crc64(str_sequence.encode()):016X}",
+        #crc64 = 1000000000000000,
+        aa_seq = format_sequence(str_sequence)
+        )
