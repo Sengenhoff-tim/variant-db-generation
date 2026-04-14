@@ -23,11 +23,7 @@ STR_TYPE_VALUE = 'Transcript'
 
 LIST_RELEVANT_FIELDS = [STR_TYPE, STR_FEAT, STR_PROTEIN_POSITION, STR_AA_CHANGE_SINGLE, STR_AA_CHANGE_FRAMESHIFT]
 
-STR_VARIANT_ENTRY = (
-    'FT   VARIANT         {}\n'
-    'FT                   /note="{} -> {}"\n'
-    'FT                   /evidence="INSERTED"\n'
-)
+STR_UNIPROT_AA_CHANGE = '{} -> {}'
 
 REGEX_HEADER_FORMAT = re.compile(r'Description="[^"]*?Format:\s*([^"]*?)"', re.IGNORECASE)
 REGEX_AA_CHANGE = re.compile(r'([A-Z])/([A-Z]+)')
@@ -71,8 +67,8 @@ def read_header(reader: io.TextIOWrapper) -> Dict[str, int]:
 
     return index_map
 
-def read_body(reader: io.TextIOWrapper, indexes: Dict[str, int]) -> Dict[str, str]:
-    aa_changes: Dict[str, str] = {}
+def read_body(reader: io.TextIOWrapper, indexes: Dict[str, int]) -> Dict[str, Dict[str, List[str]]]:
+    aa_changes: Dict[str, Dict[str, List[str]]] = {}
 
     for line in reader:
         line = line.rstrip('\n')
@@ -98,7 +94,7 @@ def read_body(reader: io.TextIOWrapper, indexes: Dict[str, int]) -> Dict[str, st
     return aa_changes
 
 
-def add_variant_entry(aa_dict: Dict[str, str], variant_fields: List[str], field_indexes: Dict[str, int]) -> None:
+def add_variant_entry(aa_dict: Dict[str, Dict[str, List[str]]], variant_fields: List[str], field_indexes: Dict[str, int]) -> None:
     feat_type_idx = field_indexes.get(STR_TYPE)
     if feat_type_idx is None:
         return
@@ -120,18 +116,22 @@ def add_variant_entry(aa_dict: Dict[str, str], variant_fields: List[str], field_
     if not aa_change or not feat_match:
         return
 
-    aa_old = aa_change.group(1)
-    aa_new = variant_fields[frameshift_idx] if variant_fields[frameshift_idx] != '' else aa_change.group(2)
+    feat_name = feat_match.group(1)
 
     position = variant_fields[pos_idx]
 
-    feat_name = feat_match.group(1)
+    aa_old = aa_change.group(1)
+    aa_new = variant_fields[frameshift_idx] if variant_fields[frameshift_idx] != '' else aa_change.group(2)
 
-    variant_entry = STR_VARIANT_ENTRY.format(position, aa_old, aa_new)
+    if feat_name not in aa_dict:
+        aa_dict[feat_name] = {}
 
-    aa_dict[feat_name] = aa_dict.get(feat_name, "") + variant_entry
+    if position not in aa_dict[feat_name]:
+        aa_dict[feat_name][position] = []
 
-def build_aa_dict(vcf_file) -> Dict[str, str]:
+    aa_dict[feat_name][position].append(STR_UNIPROT_AA_CHANGE.format(aa_old, aa_new))
+
+def build_aa_dict(vcf_file) -> Dict[str, Dict[str, List[str]]]:
     get_path(vcf_file)
     with open_buffered(vcf_file) as vcf_reader:
         field_indexes = read_header(vcf_reader)

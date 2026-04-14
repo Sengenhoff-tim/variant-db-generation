@@ -3,8 +3,7 @@ import crcmod
 from datetime import datetime
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
-#TODO validate, which Uniprot fields are truly nessesary. mono weight and crc64 appear to change the order of the output. Further validation is required
-
+#TODO validate which Uniprot fields are truly nessesary. mono weight and crc64 appear to change the order of the output. Further validation is required
 
 TODAY = datetime.now().strftime("%d-%b-%Y").upper()
 VALID = set("ACDEFGHIKLMNPQRSTVWY")
@@ -53,7 +52,7 @@ def format_sequence(seq: str) -> str:
         i += 60
     return '\n'.join(lines)
 
-def build_dummy_entry(str_seq_id, aa_count, str_variant, str_sequence) -> str:
+def build_dummy_entry(str_seq_id: str, aa_count: int, str_variant: str, str_sequence: str) -> str:
     if not set(str_sequence).issubset(VALID):
         raise ValueError("Invalid amino acids in sequence")
     return DUMMY_ENTRY.format(
