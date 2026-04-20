@@ -34,8 +34,7 @@ process GETUNIPROT {
    
     // TODO fix ouput
 
-    // wget -qO- ${uniprot_download_link} | \
-
+    //TODO optionally handle non-zip files
     """
         wget -qO- "${uniprot_download_link}" | \
         gzip -cdf | \

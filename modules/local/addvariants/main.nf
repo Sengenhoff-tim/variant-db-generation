@@ -27,12 +27,13 @@ process ADDVARIANTS {
     
     //TODO check how to access scripts in in bin
     """
-    gzip -cdf ${uniprot_entries} | \
-    entry_builder.py \
-        --aa_changes_file ${input} | \
-    gzip > ${prefix}_wvariants.txt.gz
+    cat "/home/tim/Documents/BA/nf-core-like-variant-db-generation-test/test1/fake_imput.txt" | gzip > ${prefix}_wvariants.txt.gz
     """
 
+    //gzip -cdf ${uniprot_entries} | \
+    //entry_builder.py \
+    //    --aa_changes_file ${input} | \
+    //gzip > ${prefix}_wvariants.txt.gz
     stub:
     // def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
