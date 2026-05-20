@@ -5,12 +5,105 @@
     "description": "TODO",
     "type": "object",
     "$defs": {
+        "general_parameters": {
+            "title": "General parameters",
+            "type": "object",
+            "description": "Parameters directly controlling output",
+            "default": "",
+            "properties": {
+                "features": {
+                    "type": "string",
+                    "pattern": "^(?:ALL|NONE|(?:INIT_MET|VARIANT|VAR_SEQ|SIGNAL|MUTAGEN|CONFLICT|PEPTIDE|PROPEP|CHAIN)(?:,(?:INIT_MET|VARIANT|VAR_SEQ|SIGNAL|MUTAGEN|CONFLICT|PEPTIDE|PROPEP|CHAIN))*)$",
+                    "description": "Features to include. Combine values with commas (e.g. \"VARIANT,MUTAGEN\"). Valid values: ALL, NONE, INIT_MET, VARIANT, VAR_SEQ, SIGNAL, MUTAGEN, CONFLICT, PEPTIDE, PROPEP, CHAIN. ALL and NONE are exclusive must be used alone.",
+                    "default": "NONE"
+                },
+                "digestion": {
+                    "type": "string",
+                    "enum": ["gluc", "trypsin", "skip", "full"],
+                    "default": "trypsin",
+                    "description": "Digestion method. Options: \"gluc\", \"trypsin\", \"skip\", \"full\""
+                },
+                "max_variants": {
+                    "type": "integer",
+                    "description": "Maximum variants per peptide. Higher values increases computation exponentially.",
+                    "default": 3
+                },
+                "max_misscleavages": {
+                    "type": "integer",
+                    "description": "Maximum misscleavages per pepide.",
+                    "default": 2
+                },
+                "min_da": {
+                    "type": "integer",
+                    "description": "Minimum peptide weight in Da.",
+                    "default": 600
+                },
+                "max_da": {
+                    "type": "integer",
+                    "description": "Maximum peptide weight in Da.",
+                    "default": 4000
+                }
+            },
+            "required": ["features", "digestion", "max_variants", "max_misscleavages", "min_da", "max_da"]
+        },
+        "bpcsr_reader_parameters": {
+            "title": "bpcsr reader parameters",
+            "type": "object",
+            "description": "No semantic impact on output. Controls performance.",
+            "default": "",
+            "properties": {
+                "bpcsr_reader_hash_bits": {
+                    "type": "integer",
+                    "default": 8,
+                    "description": "Controls how many intermediate files are created. 2^hash_bits files are created. Guideline: intermediate binary files  \u2272 available memory/2",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "bpcsr_reader_bin_size": {
+                    "type": "integer",
+                    "description": "Controls initial size of bins for graph querieing. If bins are to large, more jobs are rescheduled, if bins are too  small memory is not fully utilized.",
+                    "default": 100,
+                    "maximum": 65535,
+                    "minimum": 0
+                },
+                "bpcsr_reader_job_splits": {
+                    "type": "integer",
+                    "description": "Controls how many subjobs are created once a job hits the memory limit. Rescheduling is expensive, because the  partial job is discarded.",
+                    "default": 4,
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "bpcsr_reader_job_depth": {
+                    "type": "integer",
+                    "description": "Controls how many times a job is allowed to split before failing.",
+                    "default": 10,
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "bpcsr_reader_ch_processing_in_size": {
+                    "type": "integer",
+                    "description": "Controls how many graphs are read to memory at once during processing. Null uses internal default.Default of 2 is recommended."
+                },
+                "bpcsr_reader_ch_processing_out_size": {
+                    "type": "integer",
+                    "description": "Controls how many sequence-metadata pairs are in memory at once during processing. Null uses internal default."
+                },
+                "bpcsr_reader_ch_dedup_in_size": {
+                    "type": "integer",
+                    "description": "Controls how many intermediate files are read to memory at once during deduplication. Null uses internal default."
+                },
+                "bpcsr_reader_ch_dedup_out_size": {
+                    "type": "integer",
+                    "description": "Controls how many sequence-metadata pairs are read to memory during deduplication. Null uses internal default."
+                }
+            }
+        },
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir", "ref_proteome"],
+            "required": ["input", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -28,6 +121,55 @@
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "zip_output": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Return zipped output files."
+                }
+            }
+        },
+        "protein_database_options": {
+            "title": "protein database options",
+            "type": "object",
+            "description": "Controls the source database for ProtGraph",
+            "default": "",
+            "properties": {
+                "use_ensembl_fallback": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If no UniProt entry can be found, use ENSP to aquire a protein sequence"
+                },
+                "merge_uniprot_database": {
+                    "type": "boolean",
+                    "description": "If set, a uniprot source is required. Any sample specific data will be merged into the uniprot file."
+                },
+                "uniprot_source_file": {
+                    "type": "string",
+                    "description": "Provide the path to a uniprot .txt or .txt.gz file",
+                    "pattern": ".*\\.txt(\\.gz)?$",
+                    "format": "file-path",
+                    "mimetype": "text"
+                },
+                "uniprot_source_accession_list": {
+                    "type": "string",
+                    "description": "Path to a csv of UniProt accessions.",
+                    "pattern": ".*\\.csv?$",
+                    "format": "file-path",
+                    "mimetype": "csv"
+                }
+            },
+            "required": ["use_ensembl_fallback", "merge_uniprot_database"]
+        },
+        "protgraph_options": {
+            "title": "ProtGraph options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "protgraph_additional_params": {
+                    "type": "string",
+                    "description": "For additional params, see \"https://github.com/mpc-bioinformatics/ProtGraph/tree/master\". This pipeline is not validated for non-default params."
                 }
             }
         },
@@ -42,40 +184,40 @@
                     "type": "string",
                     "description": "Git commit id for Institutional configs.",
                     "default": "master",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
                 },
                 "custom_config_base": {
                     "type": "string",
                     "description": "Base directory for Institutional configs.",
                     "default": "https://raw.githubusercontent.com/nf-core/configs/master",
-                    "hidden": true,
                     "help_text": "If you're running offline, Nextflow will not be able to fetch the institutional config files from the internet. If you don't need them, then this is not a problem. If you do need them, you should download the files from the repo and tell Nextflow where to find them with this parameter.",
-                    "fa_icon": "fas fa-users-cog"
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
                 },
                 "config_profile_name": {
                     "type": "string",
                     "description": "Institutional config name.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
                 },
                 "config_profile_description": {
                     "type": "string",
                     "description": "Institutional config description.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
                 },
                 "config_profile_contact": {
                     "type": "string",
                     "description": "Institutional config contact information.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
                 },
                 "config_profile_url": {
                     "type": "string",
                     "description": "Institutional config URL link.",
-                    "hidden": true,
-                    "fa_icon": "fas fa-users-cog"
+                    "fa_icon": "fas fa-users-cog",
+                    "hidden": true
                 }
             }
         },
@@ -143,7 +285,19 @@
     },
     "allOf": [
         {
+            "$ref": "#/$defs/general_parameters"
+        },
+        {
+            "$ref": "#/$defs/bpcsr_reader_parameters"
+        },
+        {
             "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/protein_database_options"
+        },
+        {
+            "$ref": "#/$defs/protgraph_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

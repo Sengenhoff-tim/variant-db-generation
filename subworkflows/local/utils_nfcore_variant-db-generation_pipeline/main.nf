@@ -25,15 +25,51 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 workflow PIPELINE_INITIALISATION {
 
     take:
+
+    // main i/o params
+    input
+    outdir          //  string: The output directory where the results will be saved
+    zip_output      //  string: Path to input samplesheet
+
+    // functional params
+        
+        // ProtGraph
+        features
+        digestion
+        max_misscleavages
+
+        // bpcsr reader
+        max_variants
+        min_da
+        max_da
+
+    // general params
     version           // boolean: Display version and exit
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
     monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    nextflow_cli_args //   array: List of positional nextflow CLI args   
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
+    
+    // Source database params
+    use_ensembl_fallback
+    merge_uniprot_database
+    uniprot_source_file
+    uniprot_source_accession_list
+
+    // ProtGraph options
+    protgraph_additional_params
+
+    // ProtGraph bpcsr reader options
+    bpcsr_reader_hash_bits
+    bpcsr_reader_bin_size       
+    bpcsr_reader_job_splits
+    bpcsr_reader_job_depth
+    bpcsr_reader_ch_processing_in_size
+    bpcsr_reader_ch_processing_out_size
+    bpcsr_reader_ch_dedup_in_size
+    bpcsr_reader_ch_dedup_out_size   
 
     main:
 
@@ -78,13 +114,95 @@ workflow PIPELINE_INITIALISATION {
     //
 
     channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
         .map { meta, aa_change -> tuple(meta, [aa_change]) }
         .set { ch_samplesheet }
 
+    // Create channels for process params
+
+    def sources = [
+        uniprot_source_file,
+        uniprot_source_accession_list
+    ]
+
+    def provided_sources = sources.count { 
+        source ->
+        source?.toString()?.trim()
+    }
+
+    if( merge_uniprot_database && provided_sources == 0 ) {
+
+        error """
+            Invalid configuration:
+
+            merge_uniprot_database = true
+
+            You must provide exactly one of:
+            - uniprot_source_file
+            - uniprot_source_accession_list
+        """
+    }
+
+    if( provided_sources > 1 ) {
+
+        error """
+            Invalid configuration:
+
+            Only one of the following may be provided:
+            - uniprot_source_file
+            - uniprot_source_accession_list
+        """
+    }
+
+    ch_database_params = channel.value { 
+        tuple(
+            use_ensembl_fallback, 
+            merge_uniprot_database,
+            uniprot_source_file,
+            uniprot_source_accession_list
+        )
+    }
+
+    ch_protgraph_params = channel.value {
+        tuple(
+            // functional
+            features,
+            digestion,
+            max_misscleavages,
+
+            // additional
+            protgraph_additional_params,
+        )
+    }
+
+    ch_bpcsr_reader_params = channel.value {
+        tuple(
+            // functional
+            max_variants,
+            min_da,
+            max_da,
+
+            // i/o
+            zip_output,
+
+            // runtime settings
+            bpcsr_reader_hash_bits,
+            bpcsr_reader_bin_size,
+            bpcsr_reader_job_splits,
+            bpcsr_reader_job_depth,
+            bpcsr_reader_ch_processing_in_size,
+            bpcsr_reader_ch_processing_out_size,
+            bpcsr_reader_ch_dedup_in_size,
+            bpcsr_reader_ch_dedup_out_size,
+        )
+    }
+
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    samplesheet         = ch_samplesheet
+    versions            = ch_versions
+    params_database     = ch_database_params
+    params_protgraph    = ch_protgraph_params
+    params_bpcsr_reader = ch_bpcsr_reader_params
 }
 
 /*

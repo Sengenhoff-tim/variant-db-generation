@@ -17,17 +17,19 @@
 
 process CREATEPRECURSERFASTA {
     tag "$meta.id"
-    label 'process_single'
+    label 'process_high'
 
-    conda "${moduleDir}/environment.yml"
-    container 'graph_traversal:latest '
+    //TODO add singularity/conda
+    container 'bpcsr_to_fasta:latest'
 
     input:
     tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path("*.fasta"), emit: fasta
-    tuple val("${task.process}"), val('createprecurserfasta'), val("1.0"), topic: versions, emit: versions_createprecurserfasta
+    tuple val(meta), path("/output_${prefix}"), emit: output
+
+    //TODO fix version
+    tuple val("${task.process}"), val('bpcsr_to_fasta'), val("dev"), topic: versions, emit: versions_bpcsr_to_fasta
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,12 +38,18 @@ process CREATEPRECURSERFASTA {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    protgraphtraverseintvarlimitter \\
-        ${input} \\
-        ${args} \\
-        1 \\
-        ${prefix}2.fasta \\
-        ${workflow.projectDir}/assets/test_run/limits2.csv
+    bpcsr_to_fasta \\
+        --graphs ${input} \\
+        --queries ${queries_csv} \\
+        --outdir ${workflow.projectDir}/output_${prefix} \\
+        --avail_processors ${task.cpus} \\
+        --avail_memory ${task.memory.toGiga()} \\
+        --max_vars ${max_vars} \\ 
+        --interval_bin_length ${bin_size} \\
+        --hash_bits ${hash_bits} \\
+        --job_splits ${job_splits} \\
+        --split_depth ${job_depth} \\
+        ${args}
     """
 
     stub:

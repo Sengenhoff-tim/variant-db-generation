@@ -10,7 +10,6 @@ include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
 include { GETUNIPROT } from '../modules/local/getuniprot/main.nf'
 include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 include { CREATEPRECURSERFASTA } from '../modules/local/createprecurserfasta'
-include { COMPACTFASTA } from '../modules/local/compactfasta'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,19 +21,21 @@ workflow VARIANT_DB_GENERATION {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    ch_database_params
+    ch_protgraph_params
+    ch_bpcsr_reader_params
     main:
 
     ch_versions = channel.empty()
 
-    GETUNIPROT("https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=txt&query=accession%3AP15529", "test")
+    GETUNIPROT(ch_database_params)
     
-    ADDVARIANTS(ch_samplesheet, GETUNIPROT.out.gz)
+    ADDVARIANTS(GETUNIPROT.out.gz, ch_samplesheet)
     
-    PROTGRAPH(ADDVARIANTS.out.gz)
+    PROTGRAPH(ADDVARIANTS.out.gz, ch_protgraph_params)
 
-    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr)
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_bpcsr_reader_params)
 
-    COMPACTFASTA(CREATEPRECURSERFASTA.out.fasta)
     //
     // Collate and save software versions
     //

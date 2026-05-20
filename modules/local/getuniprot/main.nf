@@ -7,8 +7,7 @@ process GETUNIPROT {
         'quay.io/biocontainers/python:3.14' }"
 
     input:
-    val(uniprot_download_link)
-    val(uniprot_filename)
+    tuple val(use_ensembl_fallback), val(merge_uniprot_database), path(uniprot_source_file), path(uniprot_source_accession_list)
 
     output:
     path("${uniprot_filename}.gz"), emit: gz
