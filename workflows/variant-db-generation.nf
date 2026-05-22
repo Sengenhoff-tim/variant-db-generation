@@ -22,6 +22,7 @@ workflow VARIANT_DB_GENERATION {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
     ch_database_params
+    ch_merge_params
     ch_protgraph_params
     ch_bpcsr_reader_params
     main:
@@ -30,11 +31,11 @@ workflow VARIANT_DB_GENERATION {
 
     GETUNIPROT(ch_database_params)
     
-    ADDVARIANTS(GETUNIPROT.out.gz, ch_samplesheet)
+    ADDVARIANTS(GETUNIPROT.out.gz, ch_samplesheet, ch_merge_params)
     
     PROTGRAPH(ADDVARIANTS.out.gz, ch_protgraph_params)
 
-    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_bpcsr_reader_params)
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, "~/Documents/BA/nf-core-like-variant-db-generation/test.csv", ch_bpcsr_reader_params)
 
     //
     // Collate and save software versions

@@ -7,16 +7,17 @@ process GETUNIPROT {
         'quay.io/biocontainers/python:3.14' }"
 
     input:
-    tuple val(use_ensembl_fallback), val(merge_uniprot_database), path(uniprot_source_file), path(uniprot_source_accession_list)
-
+    tuple val(merge_uniprot_database), path(uniprot_source_file), path(uniprot_source_accession_list)
+    
     output:
-    path("${uniprot_filename}.gz"), emit: gz
+    path("${filename}_trimmed.txt.gz"), emit: gz
     tuple val("${task.process}"), val('python'), eval("python --version | sed 's/Python //g'"), topic: versions, emit: versions_python
     
     when:
     task.ext.when == null || task.ext.when
 
     script:
+    filename = file(uniprot_source_file).baseName
     // TODO check if required
     // def args = task.ext.args ?: ''
     // def prefix = task.ext.prefix ?: "${meta.id}"
@@ -35,13 +36,13 @@ process GETUNIPROT {
 
     //TODO optionally handle non-zip files
     """
-        wget -qO- "${uniprot_download_link}" | \
-        gzip -cdf | \
+        gzip -cdf "${uniprot_source_file}" | \
         uniprot_trimmer.py | \
-        gzip > "${uniprot_filename}.gz"
+        gzip > ${filename}_trimmed.txt.gz
     """
 
     stub:
+    filename = file(uniprot_source_file).baseName
     // def args = task.ext.args ?: ''
     //def prefix = task.ext.prefix ?: "${meta.id}"
     // TODO nf-core: A stub section should mimic the execution of the original module as best as possible
@@ -52,6 +53,7 @@ process GETUNIPROT {
     //               - The definition of args `def args = task.ext.args ?: ''` above.
     //               - The use of the variable in the script `echo $args ` below.
     """
-    touch "${uniprot_filename}.gz"
+    echo "${merge_uniprot_database};${uniprot_source_file};${uniprot_source_accession_list}"
+    touch ${filename}_trimmed.txt.gz
     """
 }

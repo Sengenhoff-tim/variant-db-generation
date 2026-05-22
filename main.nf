@@ -30,6 +30,7 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     take:
     samplesheet // channel: samplesheet read in from --input
     params_database
+    params_merge
     params_protgraph
     params_bpcsr_reader
     main:
@@ -40,6 +41,7 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     VARIANT_DB_GENERATION (
         samplesheet,
         params_database,
+        params_merge,
         params_protgraph,
         params_bpcsr_reader,
     )
@@ -110,6 +112,7 @@ workflow {
     NFCORELIKE_VARIANT_DB_GENERATION (
         PIPELINE_INITIALISATION.out.samplesheet,
         PIPELINE_INITIALISATION.out.ch_database_params,
+        PIPELINE_INITIALISATION.out.ch_merge_params,
         PIPELINE_INITIALISATION.out.ch_protgraph_params,
         PIPELINE_INITIALISATION.out.ch_bpcsr_reader_params,
     )

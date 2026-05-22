@@ -67,3 +67,4 @@ def build_dummy_entry(str_seq_id: str, aa_count: int, str_variant: str, str_sequ
         #crc64 = 1000000000000000,
         aa_seq = format_sequence(str_sequence)
         )
+

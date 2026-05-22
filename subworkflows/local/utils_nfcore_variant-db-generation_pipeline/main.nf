@@ -156,10 +156,14 @@ workflow PIPELINE_INITIALISATION {
 
     ch_database_params = channel.value { 
         tuple(
-            use_ensembl_fallback, 
-            merge_uniprot_database,
             uniprot_source_file,
             uniprot_source_accession_list
+        )
+    }
+
+    ch_merge_params = channel.value { 
+        tuple(
+            use_ensembl_fallback, 
         )
     }
 
@@ -201,6 +205,7 @@ workflow PIPELINE_INITIALISATION {
     samplesheet         = ch_samplesheet
     versions            = ch_versions
     params_database     = ch_database_params
+    params_merge        = ch_merge_params
     params_protgraph    = ch_protgraph_params
     params_bpcsr_reader = ch_bpcsr_reader_params
 }
