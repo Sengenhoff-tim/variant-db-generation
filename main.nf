@@ -29,10 +29,12 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    ranges
     params_database
-    params_merge
+    //params_merge
     params_protgraph
     params_bpcsr_reader
+
     main:
 
     //
@@ -40,8 +42,9 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     //
     VARIANT_DB_GENERATION (
         samplesheet,
+        ranges,
         params_database,
-        params_merge,
+        //params_merge,
         params_protgraph,
         params_bpcsr_reader,
     )
@@ -87,10 +90,7 @@ workflow {
         params.show_hidden,
         
         // Source database params
-        params.use_ensembl_fallback,
-        params.merge_uniprot_database,
         params.uniprot_source_file,
-        params.uniprot_source_accession_list,
 
         // ProtGraph options
         params.protgraph_additional_params,
@@ -111,10 +111,11 @@ workflow {
     //
     NFCORELIKE_VARIANT_DB_GENERATION (
         PIPELINE_INITIALISATION.out.samplesheet,
-        PIPELINE_INITIALISATION.out.ch_database_params,
-        PIPELINE_INITIALISATION.out.ch_merge_params,
-        PIPELINE_INITIALISATION.out.ch_protgraph_params,
-        PIPELINE_INITIALISATION.out.ch_bpcsr_reader_params,
+        PIPELINE_INITIALISATION.out.ranges,
+        PIPELINE_INITIALISATION.out.params_database,
+        //PIPELINE_INITIALISATION.out.params_merge,
+        PIPELINE_INITIALISATION.out.params_protgraph,
+        PIPELINE_INITIALISATION.out.params_bpcsr_reader,
     )
     //
     // SUBWORKFLOW: Run completion tasks

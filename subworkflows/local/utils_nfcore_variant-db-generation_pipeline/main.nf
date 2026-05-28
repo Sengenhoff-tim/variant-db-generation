@@ -33,15 +33,15 @@ workflow PIPELINE_INITIALISATION {
 
     // functional params
         
-        // ProtGraph
-        features
-        digestion
-        max_misscleavages
+    // ProtGraph
+    features
+    digestion
+    max_misscleavages
 
-        // bpcsr reader
-        max_variants
-        min_da
-        max_da
+    // bpcsr reader
+    max_variants
+    min_da
+    max_da
 
     // general params
     version           // boolean: Display version and exit
@@ -53,10 +53,7 @@ workflow PIPELINE_INITIALISATION {
     show_hidden       // boolean: Show hidden parameters in the help message
     
     // Source database params
-    use_ensembl_fallback
-    merge_uniprot_database
     uniprot_source_file
-    uniprot_source_accession_list
 
     // ProtGraph options
     protgraph_additional_params
@@ -115,14 +112,23 @@ workflow PIPELINE_INITIALISATION {
 
     channel
         .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map { meta, aa_change -> tuple(meta, [aa_change]) }
-        .set { ch_samplesheet }
+        .map { meta, aa_change, ranges ->
+            tuple(meta, [aa_change], ranges)
+        }
+        .multiMap { it ->
+            samplesheet: tuple(it[0], it[1])
+            ranges     : it[2]
+        }
+        .set { ch_out }
+
+    ch_out.samplesheet.set { ch_samplesheet }
+    ch_out.ranges.set { ch_ranges }
 
     // Create channels for process params
 
     def sources = [
         uniprot_source_file,
-        uniprot_source_accession_list
+        //uniprot_source_accession_list
     ]
 
     def provided_sources = sources.count { 
@@ -130,7 +136,9 @@ workflow PIPELINE_INITIALISATION {
         source?.toString()?.trim()
     }
 
-    if( merge_uniprot_database && provided_sources == 0 ) {
+    if( 
+        //merge_uniprot_database && 
+        provided_sources == 0 ) {
 
         error """
             Invalid configuration:
@@ -154,20 +162,15 @@ workflow PIPELINE_INITIALISATION {
         """
     }
 
-    ch_database_params = channel.value { 
-        tuple(
-            uniprot_source_file,
-            uniprot_source_accession_list
-        )
-    }
+    /*
+    def ch_merge_params = channel.of { 
 
-    ch_merge_params = channel.value { 
-        tuple(
-            use_ensembl_fallback, 
-        )
-    }
+            use_ensembl_fallback
 
-    ch_protgraph_params = channel.value {
+    }
+    */
+
+    def ch_protgraph_params = channel.of(
         tuple(
             // functional
             features,
@@ -177,9 +180,9 @@ workflow PIPELINE_INITIALISATION {
             // additional
             protgraph_additional_params,
         )
-    }
+    )
 
-    ch_bpcsr_reader_params = channel.value {
+    def ch_bpcsr_reader_params = channel.of (
         tuple(
             // functional
             max_variants,
@@ -199,13 +202,14 @@ workflow PIPELINE_INITIALISATION {
             bpcsr_reader_ch_dedup_in_size,
             bpcsr_reader_ch_dedup_out_size,
         )
-    }
+    )
 
     emit:
     samplesheet         = ch_samplesheet
+    ranges              = ch_ranges
     versions            = ch_versions
-    params_database     = ch_database_params
-    params_merge        = ch_merge_params
+    params_database     = uniprot_source_file
+    //params_merge        = ch_merge_params
     params_protgraph    = ch_protgraph_params
     params_bpcsr_reader = ch_bpcsr_reader_params
 }

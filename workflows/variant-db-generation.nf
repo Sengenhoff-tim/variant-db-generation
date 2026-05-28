@@ -7,9 +7,9 @@ include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_variant-db-generation_pipeline'
 include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
-include { GETUNIPROT } from '../modules/local/getuniprot/main.nf'
 include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 include { CREATEPRECURSERFASTA } from '../modules/local/createprecurserfasta'
+include { BCFTOOLSPLUGINSPLITVEP } from '../modules/local/bcftoolspluginsplitvep'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -21,21 +21,22 @@ workflow VARIANT_DB_GENERATION {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    ch_ranges
     ch_database_params
-    ch_merge_params
+    //ch_merge_params
     ch_protgraph_params
     ch_bpcsr_reader_params
     main:
 
     ch_versions = channel.empty()
 
-    GETUNIPROT(ch_database_params)
+    BCFTOOLSPLUGINSPLITVEP(ch_samplesheet)
     
-    ADDVARIANTS(GETUNIPROT.out.gz, ch_samplesheet, ch_merge_params)
+    ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, ch_database_params)
     
     PROTGRAPH(ADDVARIANTS.out.gz, ch_protgraph_params)
 
-    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, "~/Documents/BA/nf-core-like-variant-db-generation/test.csv", ch_bpcsr_reader_params)
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_ranges, ch_bpcsr_reader_params)
 
     //
     // Collate and save software versions

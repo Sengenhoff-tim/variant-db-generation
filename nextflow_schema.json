@@ -135,28 +135,12 @@
             "description": "Controls the source database for ProtGraph",
             "default": "",
             "properties": {
-                "use_ensembl_fallback": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If no UniProt entry can be found, use ENSP to aquire a protein sequence"
-                },
-                "merge_uniprot_database": {
-                    "type": "boolean",
-                    "description": "If set, a uniprot source is required. Any sample specific data will be merged into the uniprot file."
-                },
                 "uniprot_source_file": {
                     "type": "string",
                     "description": "Provide the path to a uniprot .txt or .txt.gz file",
                     "pattern": ".*\\.txt(\\.gz)?$",
                     "format": "file-path",
                     "mimetype": "text"
-                },
-                "uniprot_source_accession_list": {
-                    "type": "string",
-                    "description": "Path to a csv of UniProt accessions.",
-                    "pattern": ".*\\.csv?$",
-                    "format": "file-path",
-                    "mimetype": "csv"
                 }
             },
             "required": ["use_ensembl_fallback", "merge_uniprot_database"]

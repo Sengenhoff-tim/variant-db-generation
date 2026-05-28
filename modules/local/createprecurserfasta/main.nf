@@ -40,7 +40,7 @@ process CREATEPRECURSERFASTA {
         val(bpcsr_reader_ch_dedup_out_size)
     )
     output:
-    tuple val(meta), path("/output_*"), emit: output
+    tuple val(meta), path("output_*", type: 'dir'), emit: output
 
     //TODO fix version
     tuple val("${task.process}"), val('bpcsr_to_fasta'), val("dev"), topic: versions, emit: versions_bpcsr_to_fasta
@@ -52,28 +52,32 @@ process CREATEPRECURSERFASTA {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def zip = ""
+    def ch_processing_in_size  = bpcsr_reader_ch_processing_in_size  != null ? "--ch_proc_in_size ${bpcsr_reader_ch_processing_in_size}" : ''
+    def ch_processing_out_size = bpcsr_reader_ch_processing_out_size != null ? "--ch_proc_out_size ${bpcsr_reader_ch_processing_out_size}" : ''
+    def ch_dedup_in_size       = bpcsr_reader_ch_dedup_in_size       != null ? "--ch_dedup_in_size ${bpcsr_reader_ch_dedup_in_size}" : ''
+    def ch_dedup_out_size      = bpcsr_reader_ch_dedup_out_size      != null ? "--ch_dedup_out_size ${bpcsr_reader_ch_dedup_out_size}" : ''
     if(zip_output) {
-        zip = "-zip"
+        zip = "--zip"
     }
     """
     bpcsr_to_fasta \\
         --graphs ${input} \\
         --queries ${queries_csv} \\
-        --outdir ${workflow.projectDir}/output_${prefix} \\
+        --outdir output_${prefix} \\
         ${zip} \\
         --max_vars ${max_variants} \\
         --lower_bound ${min_da} \\
-        --lower_bound ${max_da} \\
+        --upper_bound ${max_da} \\
         --avail_processors ${task.cpus} \\
         --avail_memory ${task.memory.toGiga()} \\
         --interval_bin_length ${bpcsr_reader_bin_size} \\
         --hash_bits ${bpcsr_reader_hash_bits} \\
         --job_splits ${bpcsr_reader_job_splits} \\
         --split_depth ${bpcsr_reader_job_depth} \\
-        --ch_proc_in_size ${bpcsr_reader_ch_processing_in_size} \\
-        --ch_proc_out_size ${bpcsr_reader_ch_processing_out_size} \\
-        --ch_dedup_in_size ${bpcsr_reader_ch_dedup_in_size} \\
-        --ch_dedup_out_size ${bpcsr_reader_ch_dedup_out_size} \\
+        ${ch_processing_in_size} \\
+        ${ch_processing_out_size} \\
+        ${ch_dedup_in_size} \\
+        ${ch_dedup_out_size} \\
         ${args}
     """
 

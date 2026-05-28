@@ -20,20 +20,21 @@ process PROTGRAPH {
 
     script:
     def args = task.ext.args ?: ''
-    def feats = features.replace(",", " -ft ")
+    def feats = "${features}".replace(",", " -ft ")
+    def addititonal_params = protgraph_additional_params ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
     // TODO nf-core: It MUST be possible to pass additional parameters to the tool as a command-line string via the "task.ext.args" directive
     // TODO nf-core: If the tool supports multi-threading then you MUST provide the appropriate parameter
     //               using the Nextflow "task" variable e.g. "--threads $task.cpus"
 
-    """
+    """ 
         gzip -cdf ${input} > ${prefix}.txt
 
         protgraph \\
             -eo ${prefix} \\
             -ft ${feats} \\
             --digestion ${digestion} \\
-            ${protgraph_additional_params} \\
+            ${addititonal_params} \\
             ${args} \\
             ${prefix}.txt
     """

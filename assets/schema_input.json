@@ -17,10 +17,17 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.vcf\\.gz$",
-                "errorMessage": "Text file containing reference proteome must be provided and must have extension '.txt.gz'"
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.vcf(\\.gz)?$",
+                "errorMessage": "TODO '.vcf.gz'"
+            },
+            "ranges": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.csv$",
+                "errorMessage": "TODO '.txt.gz'"
             }
         },
-        "required": ["sample", "aa_changes"]
+        "required": ["sample", "aa_changes", "ranges"]
     }
 }

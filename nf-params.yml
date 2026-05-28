@@ -9,6 +9,150 @@
 ## -----------------------------------------------------------------------------
 
 ## =============================================================================
+## General parameters
+## =============================================================================
+## Parameters directly controlling output
+
+## -----------------------------------------------------------------------------
+## features
+## -----------------------------------------------------------------------------
+##     Features to include. Combine values with commas (e.g.
+##     "VARIANT,MUTAGEN"). Valid values: ALL, NONE, INIT_MET, VARIANT,
+##     VAR_SEQ, SIGNAL, MUTAGEN, CONFLICT, PEPTIDE, PROPEP, CHAIN. ALL and
+##     NONE are exclusive must be used alone.
+##     Type: string
+##     Required
+## -----------------------------------------------------------------------------
+features: "ALL"
+
+## -----------------------------------------------------------------------------
+## digestion
+## -----------------------------------------------------------------------------
+##     Digestion method. Options: "gluc", "trypsin", "skip", "full"
+##     Type: string
+##     Required
+## -----------------------------------------------------------------------------
+# digestion: "trypsin"
+
+## -----------------------------------------------------------------------------
+## max_variants
+## -----------------------------------------------------------------------------
+##     Maximum variants per peptide. Higher values increases computation
+##     exponentially.
+##     Type: integer
+##     Required
+## -----------------------------------------------------------------------------
+# max_variants: 3
+
+## -----------------------------------------------------------------------------
+## max_misscleavages
+## -----------------------------------------------------------------------------
+##     Maximum misscleavages per pepide.
+##     Type: integer
+##     Required
+## -----------------------------------------------------------------------------
+# max_misscleavages: 2
+
+## -----------------------------------------------------------------------------
+## min_da
+## -----------------------------------------------------------------------------
+##     Minimum peptide weight in Da.
+##     Type: integer
+##     Required
+## -----------------------------------------------------------------------------
+# min_da: 600
+
+## -----------------------------------------------------------------------------
+## max_da
+## -----------------------------------------------------------------------------
+##     Maximum peptide weight in Da.
+##     Type: integer
+##     Required
+## -----------------------------------------------------------------------------
+# max_da: 4000
+
+
+## =============================================================================
+## bpcsr reader parameters
+## =============================================================================
+## No semantic impact on output. Controls performance.
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_hash_bits
+## -----------------------------------------------------------------------------
+##     Controls how many intermediate files are created. 2^hash_bits files
+##     are created. Guideline: intermediate binary files  ≲ available
+##     memory/2
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_hash_bits: 8
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_bin_size
+## -----------------------------------------------------------------------------
+##     Controls initial size of bins for graph querieing. If bins are to
+##     large, more jobs are rescheduled, if bins are too  small memory is not
+##     fully utilized.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_bin_size: 100
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_job_splits
+## -----------------------------------------------------------------------------
+##     Controls how many subjobs are created once a job hits the memory
+##     limit. Rescheduling is expensive, because the  partial job is
+##     discarded.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_job_splits: 4
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_job_depth
+## -----------------------------------------------------------------------------
+##     Controls how many times a job is allowed to split before failing.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_job_depth: 10
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_ch_processing_in_size
+## -----------------------------------------------------------------------------
+##     Controls how many graphs are read to memory at once during processing.
+##     Null uses internal default.Default of 2 is recommended.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_ch_processing_in_size: null
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_ch_processing_out_size
+## -----------------------------------------------------------------------------
+##     Controls how many sequence-metadata pairs are in memory at once during
+##     processing. Null uses internal default.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_ch_processing_out_size: null
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_ch_dedup_in_size
+## -----------------------------------------------------------------------------
+##     Controls how many intermediate files are read to memory at once during
+##     deduplication. Null uses internal default.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_ch_dedup_in_size: null
+
+## -----------------------------------------------------------------------------
+## bpcsr_reader_ch_dedup_out_size
+## -----------------------------------------------------------------------------
+##     Controls how many sequence-metadata pairs are read to memory during
+##     deduplication. Null uses internal default.
+##     Type: integer
+## -----------------------------------------------------------------------------
+# bpcsr_reader_ch_dedup_out_size: null
+
+
+## =============================================================================
 ## Input/output options
 ## =============================================================================
 ## Define where the pipeline should find input data and save output data.
@@ -21,7 +165,7 @@
 ##     Type: string
 ##     Required
 ## -----------------------------------------------------------------------------
-input: '/home/tim/Documents/BA/nf-core-like-variant-db-generation/assets/test_run/samplesheet.csv'
+input: '/home/tim/Downloads/samplesheet.csv'
 
 ## -----------------------------------------------------------------------------
 ## outdir
@@ -31,7 +175,72 @@ input: '/home/tim/Documents/BA/nf-core-like-variant-db-generation/assets/test_ru
 ##     Type: string
 ##     Required
 ## -----------------------------------------------------------------------------
-outdir: '/home/tim/Documents/BA/nf-core-like-variant-db-generation-test/test1'
+outdir: '/home/tim/Documents/BA/nf-core-like-variant-db-generation/test/test1'
+
+## -----------------------------------------------------------------------------
+## zip_output
+## -----------------------------------------------------------------------------
+##     Return zipped output files.
+##     Type: boolean
+## -----------------------------------------------------------------------------
+# zip_output: true
+
+
+## =============================================================================
+## protein database options
+## =============================================================================
+## Controls the source database for ProtGraph
+
+## -----------------------------------------------------------------------------
+## use_ensembl_fallback
+## -----------------------------------------------------------------------------
+##     If no UniProt entry can be found, use ENSP to aquire a protein
+##     sequence
+##     Type: boolean
+##     Required
+## -----------------------------------------------------------------------------
+# use_ensembl_fallback: true
+
+## -----------------------------------------------------------------------------
+## merge_uniprot_database
+## -----------------------------------------------------------------------------
+##     If set, a uniprot source is required. Any sample specific data will be
+##     merged into the uniprot file.
+##     Type: boolean
+##     Required
+## -----------------------------------------------------------------------------
+
+## -----------------------------------------------------------------------------
+## uniprot_source_file
+## -----------------------------------------------------------------------------
+##     Provide the path to a uniprot .txt or .txt.gz file
+##     Type: string
+## ----------------------------------------------------------------------------
+
+uniprot_source_file: /home/tim/Downloads/uniprotkb_accession_A0A0C5B5G6_OR_access_2026_03_19.txt
+
+## -----------------------------------------------------------------------------
+## uniprot_source_accession_list
+## -----------------------------------------------------------------------------
+##     Path to a csv of UniProt accessions.
+##     Type: string
+## -----------------------------------------------------------------------------
+# uniprot_source_accession_list: null
+
+
+## =============================================================================
+## ProtGraph options
+## =============================================================================
+
+## -----------------------------------------------------------------------------
+## protgraph_additional_params
+## -----------------------------------------------------------------------------
+##     For additional params, see "https://github.com/mpc-
+##     bioinformatics/ProtGraph/tree/master". This pipeline is not validated
+##     for non-default params.
+##     Type: string
+## -----------------------------------------------------------------------------
+# protgraph_additional_params: null
 
 
 ## =============================================================================
