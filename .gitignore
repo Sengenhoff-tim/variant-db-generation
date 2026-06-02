@@ -9,3 +9,4 @@ testing*
 null/
 samplesheet.csv
 nf-params*
+.vscode/
