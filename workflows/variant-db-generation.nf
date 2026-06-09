@@ -22,21 +22,21 @@ workflow VARIANT_DB_GENERATION {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
     ch_ranges
-    ch_database_params
+    database_params
     //ch_merge_params
-    ch_protgraph_params
-    ch_bpcsr_reader_params
+    protgraph_params
+    bpcsr_reader_params
     main:
 
     ch_versions = channel.empty()
 
     BCFTOOLSPLUGINSPLITVEP(ch_samplesheet)
     
-    ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, ch_database_params)
+    ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, database_params)
     
-    PROTGRAPH(ADDVARIANTS.out.gz, ch_protgraph_params)
+    PROTGRAPH(ADDVARIANTS.out.gz, protgraph_params)
 
-    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_ranges, ch_bpcsr_reader_params)
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_ranges, bpcsr_reader_params)
 
     //
     // Collate and save software versions

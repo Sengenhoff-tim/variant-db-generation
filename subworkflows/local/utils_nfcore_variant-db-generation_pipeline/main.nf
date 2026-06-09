@@ -170,7 +170,7 @@ workflow PIPELINE_INITIALISATION {
     }
     */
 
-    def ch_protgraph_params = channel.of(
+    def protgraph_params = 
         tuple(
             // functional
             features,
@@ -180,9 +180,8 @@ workflow PIPELINE_INITIALISATION {
             // additional
             protgraph_additional_params,
         )
-    )
 
-    def ch_bpcsr_reader_params = channel.of (
+    def bpcsr_reader_params = 
         tuple(
             // functional
             max_variants,
@@ -202,7 +201,6 @@ workflow PIPELINE_INITIALISATION {
             bpcsr_reader_ch_dedup_in_size,
             bpcsr_reader_ch_dedup_out_size,
         )
-    )
 
     emit:
     samplesheet         = ch_samplesheet
@@ -210,8 +208,8 @@ workflow PIPELINE_INITIALISATION {
     versions            = ch_versions
     params_database     = uniprot_source_file
     //params_merge        = ch_merge_params
-    params_protgraph    = ch_protgraph_params
-    params_bpcsr_reader = ch_bpcsr_reader_params
+    params_protgraph    = protgraph_params
+    params_bpcsr_reader = bpcsr_reader_params
 }
 
 /*
