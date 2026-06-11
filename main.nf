@@ -73,10 +73,11 @@ workflow {
         // ProtGraph
         params.features,
         params.digestion,
-        params.max_misscleavages,
+        //params.max_misscleavages,
 
         // bpcsr reader
         params.max_variants,
+        params.max_misscleavages,
         params.min_da,
         params.max_da,
 
@@ -91,6 +92,9 @@ workflow {
         
         // Source database params
         params.uniprot_source_file,
+        params.confirmed_only,
+        params.use_ensembl_fallback,
+        
 
         // ProtGraph options
         params.protgraph_additional_params,

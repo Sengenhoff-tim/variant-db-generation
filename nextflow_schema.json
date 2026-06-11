@@ -26,22 +26,26 @@
                 "max_variants": {
                     "type": "integer",
                     "description": "Maximum variants per peptide. Higher values increases computation exponentially.",
-                    "default": 3
+                    "default": 3,
+                    "minimum": 0,
+                    "maximum": 65535
                 },
                 "max_misscleavages": {
                     "type": "integer",
                     "description": "Maximum misscleavages per pepide.",
-                    "default": 2
+                    "default": 3,
+                    "minimum": 0,
+                    "maximum": 65535
                 },
                 "min_da": {
                     "type": "integer",
                     "description": "Minimum peptide weight in Da.",
-                    "default": 600
+                    "default": 10
                 },
                 "max_da": {
                     "type": "integer",
                     "description": "Maximum peptide weight in Da.",
-                    "default": 4000
+                    "default": 10000
                 }
             },
             "required": ["features", "digestion", "max_variants", "max_misscleavages", "min_da", "max_da"]
@@ -57,28 +61,26 @@
                     "default": 8,
                     "description": "Controls how many intermediate files are created. 2^hash_bits files are created. Guideline: intermediate binary files  \u2272 available memory/2",
                     "minimum": 0,
-                    "maximum": 255
+                    "maximum": 8
                 },
                 "bpcsr_reader_bin_size": {
-                    "type": "integer",
+                    "type": "number",
                     "description": "Controls initial size of bins for graph querieing. If bins are to large, more jobs are rescheduled, if bins are too  small memory is not fully utilized.",
-                    "default": 100,
-                    "maximum": 65535,
-                    "minimum": 0
+                    "default": 1000
                 },
                 "bpcsr_reader_job_splits": {
                     "type": "integer",
                     "description": "Controls how many subjobs are created once a job hits the memory limit. Rescheduling is expensive, because the  partial job is discarded.",
-                    "default": 4,
+                    "default": 1000,
                     "minimum": 0,
-                    "maximum": 255
+                    "maximum": 18446744073709551616
                 },
                 "bpcsr_reader_job_depth": {
                     "type": "integer",
                     "description": "Controls how many times a job is allowed to split before failing.",
-                    "default": 10,
                     "minimum": 0,
-                    "maximum": 255
+                    "maximum": 255,
+                    "default": 3
                 },
                 "bpcsr_reader_ch_processing_in_size": {
                     "type": "integer",
@@ -141,9 +143,18 @@
                     "pattern": ".*\\.txt(\\.gz)?$",
                     "format": "file-path",
                     "mimetype": "text"
+                },
+                "confirmed_only": {
+                    "type": "boolean",
+                    "description": "Only include variants from vcf input"
+                },
+                "use_ensembl_fallback": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use Ensembl as fallback if no UniProt entry can be found"
                 }
             },
-            "required": ["use_ensembl_fallback", "merge_uniprot_database"]
+            "required": ["uniprot_source_file"]
         },
         "protgraph_options": {
             "title": "ProtGraph options",

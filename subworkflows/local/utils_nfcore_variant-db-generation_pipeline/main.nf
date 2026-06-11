@@ -36,10 +36,11 @@ workflow PIPELINE_INITIALISATION {
     // ProtGraph
     features
     digestion
-    max_misscleavages
+    
 
     // bpcsr reader
     max_variants
+    max_misscleavages
     min_da
     max_da
 
@@ -54,6 +55,8 @@ workflow PIPELINE_INITIALISATION {
     
     // Source database params
     uniprot_source_file
+    confirmed_only
+    use_ensembl_fallback
 
     // ProtGraph options
     protgraph_additional_params
@@ -170,12 +173,18 @@ workflow PIPELINE_INITIALISATION {
     }
     */
 
+    def database_params = 
+        tuple(
+            uniprot_source_file,
+            confirmed_only,
+            use_ensembl_fallback,
+        )
+
     def protgraph_params = 
         tuple(
             // functional
             features,
             digestion,
-            max_misscleavages,
 
             // additional
             protgraph_additional_params,
@@ -185,6 +194,7 @@ workflow PIPELINE_INITIALISATION {
         tuple(
             // functional
             max_variants,
+            max_misscleavages,
             min_da,
             max_da,
 
@@ -206,7 +216,7 @@ workflow PIPELINE_INITIALISATION {
     samplesheet         = ch_samplesheet
     ranges              = ch_ranges
     versions            = ch_versions
-    params_database     = uniprot_source_file
+    params_database     = database_params
     //params_merge        = ch_merge_params
     params_protgraph    = protgraph_params
     params_bpcsr_reader = bpcsr_reader_params

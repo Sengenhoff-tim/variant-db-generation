@@ -9,7 +9,7 @@ process ADDVARIANTS {
 
     input:
     tuple val(meta), path(input)
-    path(uniprot_entries)
+    tuple path(uniprot_entries), val(confirmed_only), val(use_ensembl_fallback)
     
 
     output:
@@ -26,12 +26,23 @@ process ADDVARIANTS {
     // TODO nf-core: It MUST be possible to pass additional parameters to the tool as a command-line string via the "task.ext.args" directive
     // TODO nf-core: If the tool supports multi-threading then you MUST provide the appropriate parameter
     //               using the Nextflow "task" variable e.g. "--threads $task.cpus"
+    def confirmed = ""
+    if(confirmed_only) {
+        confirmed = "--confirmed_only"
+    }
     
+    def fallback = ""
+    if(use_ensembl_fallback) {
+        fallback = "--ensembl_fallback"
+    }
+
     """
     vcf_uniprot_merger \\
         --bcftools_input_path ${input} \\
         --uniprot_input_path ${uniprot_entries} \\
         --output_path ${prefix}_merged.txt.gz \\
+        ${confirmed} \\
+        ${fallback} \\
         --zip
     """
 

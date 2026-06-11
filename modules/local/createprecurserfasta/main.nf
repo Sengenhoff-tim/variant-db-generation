@@ -27,6 +27,7 @@ process CREATEPRECURSERFASTA {
     path(queries_csv)
     tuple (
         val(max_variants),
+        val(max_misscleavages),
         val(min_da), 
         val(max_da), 
         val(zip_output), 
@@ -51,11 +52,12 @@ process CREATEPRECURSERFASTA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def zip = ""
+    
     def ch_processing_in_size  = bpcsr_reader_ch_processing_in_size  != null ? "--ch_proc_in_size ${bpcsr_reader_ch_processing_in_size}" : ''
     def ch_processing_out_size = bpcsr_reader_ch_processing_out_size != null ? "--ch_proc_out_size ${bpcsr_reader_ch_processing_out_size}" : ''
     def ch_dedup_in_size       = bpcsr_reader_ch_dedup_in_size       != null ? "--ch_dedup_in_size ${bpcsr_reader_ch_dedup_in_size}" : ''
     def ch_dedup_out_size      = bpcsr_reader_ch_dedup_out_size      != null ? "--ch_dedup_out_size ${bpcsr_reader_ch_dedup_out_size}" : ''
+    def zip = ""
     if(zip_output) {
         zip = "--zip"
     }
@@ -66,6 +68,7 @@ process CREATEPRECURSERFASTA {
         --outdir output_${prefix} \\
         ${zip} \\
         --max_vars ${max_variants} \\
+        --max_cleavages ${max_misscleavages} \\
         --lower_bound ${min_da} \\
         --upper_bound ${max_da} \\
         --avail_processors ${task.cpus} \\

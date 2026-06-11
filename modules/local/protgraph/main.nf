@@ -9,7 +9,7 @@ process PROTGRAPH {
 
     input:
     tuple val(meta), path(input)
-    tuple val(features), val(digestion), val(max_misscleavages), val(protgraph_additional_params)
+    tuple val(features), val(digestion), val(protgraph_additional_params)
 
     output:
     tuple val(meta), path("${prefix}/database.bpcsr"), emit: bpcsr
