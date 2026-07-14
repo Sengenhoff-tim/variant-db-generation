@@ -30,9 +30,8 @@
 ## Requirements
 
 - [Nextflow](https://www.nextflow.io/) (`>=25.04.0`)
-- One of the following container/environment engines:
 - [Docker](https://www.docker.com/)
-- Two custom Docker images, built locally via the provided build script (these are not yet published to a registry):
+- Two custom Docker images, built locally via the provided build script:
   - `bpcsr_to_fasta:latest` — reads ProtGraph binary output and converts it to FASTA
   - `vcf_uniprot_merger:latest` — merges VCF-derived amino acid changes with UniProt entries
 - A UniProt `.txt` or `.txt.gz` source file (see [`--uniprot_source_file`](#usage))
