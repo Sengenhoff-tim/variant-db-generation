@@ -1,0 +1,7 @@
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- pip
+- pip:
+  - pyteomics==5.0

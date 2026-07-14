@@ -115,17 +115,20 @@ workflow PIPELINE_INITIALISATION {
 
     channel
         .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map { meta, aa_change, ranges ->
-            tuple(meta, [aa_change], ranges)
+        .map { meta, aa_change, ranges, mzml ->
+            if (!ranges && !mzml) {
+                exit 1, "Sample '${meta.id}': at least one of 'ranges' or 'mzml' must be provided in the samplesheet."
+            }
+            tuple(meta, [aa_change], ranges, mzml)
         }
-        .multiMap { it ->
-            samplesheet: tuple(it[0], it[1])
-            ranges     : it[2]
+        .multiMap { meta, aa_change, ranges, mzml ->
+            aa_changes   : tuple(meta, aa_change)
+            ranges_mzml   : tuple(meta, ranges, mzml)
         }
         .set { ch_out }
 
-    ch_out.samplesheet.set { ch_samplesheet }
-    ch_out.ranges.set { ch_ranges }
+    ch_out.aa_changes.set { ch_aa_changes }
+    ch_out.ranges_mzml.set { ch_ranges_mzml }
 
     // Create channels for process params
 
@@ -185,6 +188,7 @@ workflow PIPELINE_INITIALISATION {
             // functional
             features,
             digestion,
+            max_misscleavages,
 
             // additional
             protgraph_additional_params,
@@ -213,11 +217,10 @@ workflow PIPELINE_INITIALISATION {
         )
 
     emit:
-    samplesheet         = ch_samplesheet
-    ranges              = ch_ranges
+    aa_changes         = ch_aa_changes
+    ranges_mzml         = ch_ranges_mzml
     versions            = ch_versions
     params_database     = database_params
-    //params_merge        = ch_merge_params
     params_protgraph    = protgraph_params
     params_bpcsr_reader = bpcsr_reader_params
 }

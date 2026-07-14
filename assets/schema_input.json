@@ -26,8 +26,15 @@
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.csv$",
                 "errorMessage": "TODO '.txt.gz'"
+            },
+            "mzml": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.mzml$",
+                "errorMessage": "TODO '.mzml'"
             }
         },
-        "required": ["sample", "aa_changes", "ranges"]
+        "required": ["sample", "aa_changes", "ranges", "mzml"]
     }
 }

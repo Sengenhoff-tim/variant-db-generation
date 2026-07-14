@@ -15,36 +15,40 @@
 // TODO nf-core: Optional inputs are not currently supported by Nextflow. However, using an empty
 //               list (`[]`) instead of a file can be used to work around this issue.
 
-process BCFTOOLSPLUGINSPLITVEP {
+process QUERYBUILDER {
     tag "$meta.id"
     label 'process_single'
 
+    // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'oras://community.wave.seqera.io/library/bcftools:1.23.1--16b1a31e5dc795f7':
-        'community.wave.seqera.io/library/bcftools:1.23.1--4d193a5f61d4aed7' }"
+        'oras://community.wave.seqera.io/library/pip_pyteomics:5ef0f3279577134e':
+        'community.wave.seqera.io/library/pip_pyteomics:4acc0d8c9d2d6c28' }"
 
     input:
-    tuple val(meta), path(input)
+    tuple val(meta), path(mzml), path(existing_ranges, stageAs: 'existing_ranges.csv'), val(out_name)
+    tuple val(ppm)
 
     output:
-    tuple val(meta), path("*.txt"), emit: gz
-    tuple val("${task.process}"), val('bcftools'), eval("bcftools --version"), topic: versions, emit: versions_bcftoolspluginsplitvep
+    tuple val(meta), path(out_name), emit: csv
+    
+    //TODO fix version
+    tuple val("${task.process}"), val('extract_masses'), val("dev"), topic: versions, emit: versions_extract_masses
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    //def args = task.ext.args ?: ''
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-
+    def has_existing = existing_ranges.name != 'NO_FILE'
     """
-    bcftools plugin split-vep \\
-        ${input}\\
-        -f '%transcript %amino_acid_change\\n' \\
-        -d \\
-        -s all:missense+ > \\
-        ${prefix}_variants.txt
+    ${has_existing ? "cp ${existing_ranges} ${out_name}" : ''}
+    extract_masses.py \\
+        ${args} \\
+        -i ${mzml} \\
+        -o ${out_name} \\
+        -p ${ppm}
     """
 
     stub:
@@ -60,6 +64,6 @@ process BCFTOOLSPLUGINSPLITVEP {
     """
     echo $args
     
-    touch ${prefix}.txt
+    touch ${prefix}.bam
     """
 }

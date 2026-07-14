@@ -29,9 +29,9 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
 
     take:
     samplesheet // channel: samplesheet read in from --input
-    ranges
+    ranges_mzml
     params_database
-    //params_merge
+    params_querybuilder
     params_protgraph
     params_bpcsr_reader
 
@@ -42,9 +42,9 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     //
     VARIANT_DB_GENERATION (
         samplesheet,
-        ranges,
+        ranges_mzml,
         params_database,
-        //params_merge,
+        params_querybuilder,
         params_protgraph,
         params_bpcsr_reader,
     )
@@ -117,7 +117,7 @@ workflow {
         PIPELINE_INITIALISATION.out.samplesheet,
         PIPELINE_INITIALISATION.out.ranges,
         PIPELINE_INITIALISATION.out.params_database,
-        //PIPELINE_INITIALISATION.out.params_merge,
+        PIPELINE_INITIALISATION.out.params_querybuilder,
         PIPELINE_INITIALISATION.out.params_protgraph,
         PIPELINE_INITIALISATION.out.params_bpcsr_reader,
     )

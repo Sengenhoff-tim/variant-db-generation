@@ -10,6 +10,7 @@ include { ADDVARIANTS } from '../modules/local/addvariants/main.nf'
 include { PROTGRAPH } from '../modules/local/protgraph/main.nf'
 include { CREATEPRECURSERFASTA } from '../modules/local/createprecurserfasta'
 include { BCFTOOLSPLUGINSPLITVEP } from '../modules/local/bcftoolspluginsplitvep'
+include { QUERYBUILDER } from '../modules/local/querybuilder/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,24 +21,47 @@ include { BCFTOOLSPLUGINSPLITVEP } from '../modules/local/bcftoolspluginsplitvep
 workflow VARIANT_DB_GENERATION {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
-    ch_ranges
+    ch_aa_changes // channel: samplesheet read in from --input
+    ch_ranges_mzml
     database_params
-    //ch_merge_params
+    querybuilder_params
     protgraph_params
     bpcsr_reader_params
     main:
 
     ch_versions = channel.empty()
 
-    BCFTOOLSPLUGINSPLITVEP(ch_samplesheet)
+    BCFTOOLSPLUGINSPLITVEP(ch_aa_changes)
     
     ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, database_params)
     
     PROTGRAPH(ADDVARIANTS.out.gz, protgraph_params)
 
-    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_ranges, bpcsr_reader_params)
+    ch_ranges_mzml
+        .branch { _meta, ranges, mzml ->
+            mzml_only  : mzml && !ranges
+            both       : mzml && ranges
+            ranges_only: !mzml && ranges
+        }
+        .set { ch_branched }
 
+    ch_to_extract = ch_branched.both.mix(ch_branched.mzml_only)
+        .map { meta, ranges, mzml ->
+            def out_name = ranges ? file(ranges).name : "${meta.id}_mzml_ranges.csv"
+            def existing = ranges ? file(ranges) : file('NO_FILE')
+            tuple(meta, mzml, existing, out_name)
+        }
+
+    ch_ranges_passthrough = ch_branched.ranges_only
+        .map { meta, ranges, _mzml -> tuple(meta, ranges) }
+
+    QUERYBUILDER(ch_to_extract, querybuilder_params)
+
+    ch_final_ranges = QUERYBUILDER.out.csv.mix(ch_ranges_passthrough)
+
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_final_ranges, bpcsr_reader_params)
+
+    
     //
     // Collate and save software versions
     //

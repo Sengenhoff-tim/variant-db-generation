@@ -9,7 +9,7 @@ process PROTGRAPH {
 
     input:
     tuple val(meta), path(input)
-    tuple val(features), val(digestion), val(protgraph_additional_params)
+    tuple val(features), val(digestion), val(max_miscleavages), val(protgraph_additional_params)
 
     output:
     tuple val(meta), path("${prefix}/database.bpcsr"), emit: bpcsr
@@ -34,6 +34,7 @@ process PROTGRAPH {
             -eo ${prefix} \\
             -ft ${feats} \\
             --digestion ${digestion} \\
+            --pep_miscleavages ${max_miscleavages} \\
             ${addititonal_params} \\
             ${args} \\
             ${prefix}.txt
