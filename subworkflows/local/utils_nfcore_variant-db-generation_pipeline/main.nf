@@ -36,6 +36,9 @@ workflow PIPELINE_INITIALISATION {
     // ProtGraph
     features
     digestion
+    mass_annotation
+    fixed_mod
+    var_mod 
     
 
     // bpcsr reader
@@ -66,6 +69,7 @@ workflow PIPELINE_INITIALISATION {
     merger_retry_backoff_ms
 
     // ProtGraph options
+    elbpcsr_pdb
     protgraph_additional_params
 
     // ProtGraph bpcsr reader options
@@ -157,12 +161,16 @@ workflow PIPELINE_INITIALISATION {
 
     def protgraph_params = 
         tuple(
-            // functional
             features,
-            digestion,
+            digestion, 
+            elbpcsr_pdb, 
             max_misscleavages,
+            min_da, 
+            max_da,
+            mass_annotation,
+            fixed_mod,
+            var_mod,
 
-            // additional
             protgraph_additional_params,
         )
 

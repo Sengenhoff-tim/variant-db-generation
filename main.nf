@@ -75,6 +75,9 @@ workflow {
         // ProtGraph
         params.features,
         params.digestion,
+        params.protgraph_mass_annotation,
+        params.protgraph_fixed_mod,
+        params.protgraph_var_mod, 
         //params.max_misscleavages,
 
         // bpcsr reader
@@ -107,6 +110,7 @@ workflow {
         params.merger_retry_backoff_ms,
 
         // ProtGraph options
+        params.protgraph_elbpcsr_pdb, 
         params.protgraph_additional_params,
 
         // ProtGraph bpcsr reader options

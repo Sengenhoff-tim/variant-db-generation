@@ -23,13 +23,6 @@
                     "default": "trypsin",
                     "description": "Digestion method. Options: \"gluc\", \"trypsin\", \"skip\", \"full\""
                 },
-                "uniprot_source_file": {
-                    "type": "string",
-                    "description": "Provide the path to a uniprot flat file. If provided, the file is directly handed to protgraph",
-                    "pattern": ".*\\.txt$",
-                    "format": "file-path",
-                    "mimetype": "text"
-                },
                 "max_variants": {
                     "type": "integer",
                     "description": "Maximum variants per peptide. Higher values increases computation exponentially.",
@@ -67,42 +60,50 @@
                     "type": "integer",
                     "default": 9,
                     "description": "Controls how many intermediate files are created. 2^hash_bits files are created. Guideline: intermediate binary files  \u2272 available memory/2",
-                    "minimum": 0
+                    "minimum": 0,
+                    "hidden": true
                 },
                 "bpcsr_reader_bin_size": {
                     "type": "number",
                     "description": "Controls initial size of bins for graph querieing. If bins are to large, more jobs are rescheduled, if bins are too  small memory is not fully utilized.",
-                    "default": 100
+                    "default": 100,
+                    "hidden": true
                 },
                 "bpcsr_reader_job_splits": {
                     "type": "integer",
                     "description": "Controls how many subjobs are created once a job hits the memory limit. Rescheduling is expensive, because the  partial job is discarded.",
                     "default": 10,
                     "minimum": 0,
-                    "maximum": 18446744073709551616
+                    "maximum": 18446744073709551616,
+                    "hidden": true
                 },
                 "bpcsr_reader_job_depth": {
                     "type": "integer",
                     "description": "Controls how many times a job is allowed to split before failing.",
                     "minimum": 0,
                     "maximum": 255,
-                    "default": 2
+                    "default": 3,
+                    "hidden": true
                 },
                 "bpcsr_reader_ch_processing_in_size": {
                     "type": "integer",
-                    "description": "Controls how many graphs are read to memory at once during processing. Null uses internal default.Default of 2 is recommended."
+                    "description": "Controls how many graphs are read to memory at once during processing. Null uses internal default.Default of 2 is recommended.",
+                    "hidden": true
                 },
                 "bpcsr_reader_ch_processing_out_size": {
                     "type": "integer",
-                    "description": "Controls how many sequence-metadata pairs are in memory at once during processing. Null uses internal default."
+                    "description": "Controls how many sequence-metadata pairs are in memory at once during processing. Null uses internal default.",
+                    "hidden": true
                 },
                 "bpcsr_reader_ch_dedup_in_size": {
                     "type": "integer",
-                    "description": "Controls how many intermediate files are read to memory at once during deduplication. Null uses internal default."
+                    "description": "Controls how many intermediate files are read to memory at once during deduplication. Null uses internal default.",
+                    "hidden": true
                 },
                 "bpcsr_reader_ch_dedup_out_size": {
                     "type": "integer",
-                    "description": "Controls how many sequence-metadata pairs are read to memory during deduplication. Null uses internal default."
+                    "description": "Controls how many sequence-metadata pairs are read to memory during deduplication. Null uses internal default.",
+                    "hidden": true
                 }
             }
         },
@@ -166,7 +167,8 @@
                     "default": true,
                     "description": "Use Ensembl as fallback if no UniProt entry can be found"
                 }
-            }
+            },
+            "required": ["uniprot_accessions"]
         },
         "merger_technical_parameters": {
             "title": "merger technical parameters",
@@ -177,17 +179,20 @@
                 "merger_timeout_secs": {
                     "type": "integer",
                     "description": "Per-request timeout, in seconds, for outgoing REST calls (UniProt, EBI, Ensembl). Covers connect + write + read for a single attempt; each attempt is retried independently on failure.",
-                    "default": 30
+                    "default": 30,
+                    "hidden": true
                 },
                 "merger_retry_backoff_ms": {
                     "type": "integer",
                     "description": "Base backoff, in milliseconds, between retry attempts. Doubles after each retry",
-                    "default": 5
+                    "default": 500,
+                    "hidden": true
                 },
                 "merger_fetch_retries": {
                     "type": "integer",
                     "description": "Number of retry attempts (including the first) for each fetch",
-                    "default": 500
+                    "default": 5,
+                    "hidden": true
                 }
             }
         },
@@ -197,11 +202,31 @@
             "description": "",
             "default": "",
             "properties": {
+                "protgraph_mass_annotation": {
+                    "type": "string",
+                    "description": "Annotate using monoisotopic or average weights",
+                    "default": "amw",
+                    "enum": ["amw", "aaw"]
+                },
+                "protgraph_elbpcsr_pdb": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Upper limit of distinct weight annotations for an edge in protgraph. If more weights are annotated, adjacent weights are merged"
+                },
+                "protgraph_fixed_mod": {
+                    "type": "string",
+                    "description": "Add a fixed modification. See ProtGraph documentation for details"
+                },
+                "protgraph_var_mod": {
+                    "type": "string",
+                    "description": "Add a variable modification. See ProtGraph documentation for details"
+                },
                 "protgraph_additional_params": {
                     "type": "string",
                     "description": "For additional params, see \"https://github.com/mpc-bioinformatics/ProtGraph/tree/master\". This pipeline is not validated for non-default params."
                 }
-            }
+            },
+            "required": ["protgraph_mass_annotation", "protgraph_elbpcsr_pdb"]
         },
         "institutional_config_options": {
             "title": "Institutional config options",
