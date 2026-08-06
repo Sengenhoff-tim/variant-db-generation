@@ -24,6 +24,7 @@ workflow VARIANT_DB_GENERATION {
     ch_aa_changes // channel: samplesheet read in from --input
     ch_ranges_mzml
     database_params
+    merger_fetch_params
     querybuilder_params
     protgraph_params
     bpcsr_reader_params
@@ -32,8 +33,8 @@ workflow VARIANT_DB_GENERATION {
     ch_versions = channel.empty()
 
     BCFTOOLSPLUGINSPLITVEP(ch_aa_changes)
-    
-    ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, database_params)
+
+    ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, database_params, merger_fetch_params)
     
     PROTGRAPH(ADDVARIANTS.out.gz, protgraph_params)
 

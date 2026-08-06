@@ -23,6 +23,13 @@
                     "default": "trypsin",
                     "description": "Digestion method. Options: \"gluc\", \"trypsin\", \"skip\", \"full\""
                 },
+                "uniprot_source_file": {
+                    "type": "string",
+                    "description": "Provide the path to a uniprot flat file. If provided, the file is directly handed to protgraph",
+                    "pattern": ".*\\.txt$",
+                    "format": "file-path",
+                    "mimetype": "text"
+                },
                 "max_variants": {
                     "type": "integer",
                     "description": "Maximum variants per peptide. Higher values increases computation exponentially.",
@@ -58,20 +65,19 @@
             "properties": {
                 "bpcsr_reader_hash_bits": {
                     "type": "integer",
-                    "default": 8,
+                    "default": 9,
                     "description": "Controls how many intermediate files are created. 2^hash_bits files are created. Guideline: intermediate binary files  \u2272 available memory/2",
-                    "minimum": 0,
-                    "maximum": 8
+                    "minimum": 0
                 },
                 "bpcsr_reader_bin_size": {
                     "type": "number",
                     "description": "Controls initial size of bins for graph querieing. If bins are to large, more jobs are rescheduled, if bins are too  small memory is not fully utilized.",
-                    "default": 1000
+                    "default": 100
                 },
                 "bpcsr_reader_job_splits": {
                     "type": "integer",
                     "description": "Controls how many subjobs are created once a job hits the memory limit. Rescheduling is expensive, because the  partial job is discarded.",
-                    "default": 1000,
+                    "default": 10,
                     "minimum": 0,
                     "maximum": 18446744073709551616
                 },
@@ -80,7 +86,7 @@
                     "description": "Controls how many times a job is allowed to split before failing.",
                     "minimum": 0,
                     "maximum": 255,
-                    "default": 3
+                    "default": 2
                 },
                 "bpcsr_reader_ch_processing_in_size": {
                     "type": "integer",
@@ -131,30 +137,59 @@
                 }
             }
         },
-        "protein_database_options": {
-            "title": "protein database options",
+        "protein_database_merger_options": {
+            "title": "protein database merger options",
             "type": "object",
             "description": "Controls the source database for ProtGraph",
             "default": "",
             "properties": {
-                "uniprot_source_file": {
+                "uniprot_accessions": {
                     "type": "string",
-                    "description": "Provide the path to a uniprot .txt or .txt.gz file",
-                    "pattern": ".*\\.txt(\\.gz)?$",
-                    "format": "file-path",
-                    "mimetype": "text"
+                    "description": "list file of uniprot accessions. See README for details"
                 },
-                "confirmed_only": {
+                "uniprot_variants": {
                     "type": "boolean",
-                    "description": "Only include variants from vcf input"
+                    "description": "include native variants of UniProt",
+                    "default": true
                 },
-                "use_ensembl_fallback": {
+                "ebi_variants": {
+                    "type": "boolean",
+                    "description": "include variants from the REST API of EBI",
+                    "default": true
+                },
+                "ebi_source_type": {
+                    "type": "string",
+                    "description": "Filter EBI variants by source, using the filter of the REST API. Allowed values: \"uniprot, large scale study, mixed, clinvar, nci-tcga, cosmic curated, ensembl, gnomad, topmed, exac\""
+                },
+                "ensembl_fallback": {
                     "type": "boolean",
                     "default": true,
                     "description": "Use Ensembl as fallback if no UniProt entry can be found"
                 }
-            },
-            "required": ["uniprot_source_file"]
+            }
+        },
+        "merger_technical_parameters": {
+            "title": "merger technical parameters",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "merger_timeout_secs": {
+                    "type": "integer",
+                    "description": "Per-request timeout, in seconds, for outgoing REST calls (UniProt, EBI, Ensembl). Covers connect + write + read for a single attempt; each attempt is retried independently on failure.",
+                    "default": 30
+                },
+                "merger_retry_backoff_ms": {
+                    "type": "integer",
+                    "description": "Base backoff, in milliseconds, between retry attempts. Doubles after each retry",
+                    "default": 5
+                },
+                "merger_fetch_retries": {
+                    "type": "integer",
+                    "description": "Number of retry attempts (including the first) for each fetch",
+                    "default": 500
+                }
+            }
         },
         "protgraph_options": {
             "title": "ProtGraph options",
@@ -289,7 +324,10 @@
             "$ref": "#/$defs/input_output_options"
         },
         {
-            "$ref": "#/$defs/protein_database_options"
+            "$ref": "#/$defs/protein_database_merger_options"
+        },
+        {
+            "$ref": "#/$defs/merger_technical_parameters"
         },
         {
             "$ref": "#/$defs/protgraph_options"

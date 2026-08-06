@@ -52,16 +52,10 @@
 4. Build the required custom Docker images using the provided script:
 
 ```bash
-   bash bin/Docker/build.sh all
+   bash setup.sh all
 ```
 
-   You can also build a single image if needed:
-
-```bash
-   bash bin/Docker/build.sh protgraph   # builds bpcsr_to_fasta:latest only
-   bash bin/Docker/build.sh merger      # builds vcf_uniprot_merger:latest only
-```
-   ...or build them directly with `docker build`:
+   You can also  build them directly with `docker build`:
 
 ```bash
    docker build --no-cache \
@@ -70,8 +64,8 @@
      bin/Docker
 
    docker build --no-cache \
-     -f bin/Docker/vcf_uniprot_merger.Dockerfile \
-     -t vcf_uniprot_merger:latest \
+     -f bin/Docker/sp_embl_builder.Dockerfile \
+     -t sp_embl_builder:latest \
      bin/Docker
 ```
 

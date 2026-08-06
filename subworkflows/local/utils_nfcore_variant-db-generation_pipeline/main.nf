@@ -52,11 +52,18 @@ workflow PIPELINE_INITIALISATION {
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
-    
-    // Source database params
-    uniprot_source_file
-    confirmed_only
-    use_ensembl_fallback
+
+    // merger source database params
+    uniprot_accessions
+    ebi_variants
+    ebi_source_type
+    uniprot_variants
+    ensembl_fallback
+
+    // merger fetch params
+    merger_timeout_secs
+    merger_fetch_retries
+    merger_retry_backoff_ms
 
     // ProtGraph options
     protgraph_additional_params
@@ -122,66 +129,31 @@ workflow PIPELINE_INITIALISATION {
             tuple(meta, [aa_change], ranges, mzml)
         }
         .multiMap { meta, aa_change, ranges, mzml ->
-            aa_changes   : tuple(meta, aa_change)
-            ranges_mzml   : tuple(meta, ranges, mzml)
+            aa_changes          : tuple(meta, aa_change)
+            ranges_mzml         : tuple(meta, ranges, mzml)
         }
         .set { ch_out }
 
     ch_out.aa_changes.set { ch_aa_changes }
     ch_out.ranges_mzml.set { ch_ranges_mzml }
 
-    // Create channels for process params
-
-    def sources = [
-        uniprot_source_file,
-        //uniprot_source_accession_list
-    ]
-
-    def provided_sources = sources.count { 
-        source ->
-        source?.toString()?.trim()
-    }
-
-    if( 
-        //merge_uniprot_database && 
-        provided_sources == 0 ) {
-
-        error """
-            Invalid configuration:
-
-            merge_uniprot_database = true
-
-            You must provide exactly one of:
-            - uniprot_source_file
-            - uniprot_source_accession_list
-        """
-    }
-
-    if( provided_sources > 1 ) {
-
-        error """
-            Invalid configuration:
-
-            Only one of the following may be provided:
-            - uniprot_source_file
-            - uniprot_source_accession_list
-        """
-    }
-
-    /*
-    def ch_merge_params = channel.of { 
-
-            use_ensembl_fallback
-
-    }
-    */
-
     def database_params = 
         tuple(
-            uniprot_source_file,
-            confirmed_only,
-            use_ensembl_fallback,
+            uniprot_accessions,
+            ebi_variants,
+            ebi_source_type,
+            uniprot_variants,
+            ensembl_fallback
         )
+
+    def merger_fetch_params = 
+        tuple(
+            merger_timeout_secs,
+            merger_fetch_retries,
+            merger_retry_backoff_ms
+        )
+    
+
 
     def protgraph_params = 
         tuple(
@@ -217,9 +189,10 @@ workflow PIPELINE_INITIALISATION {
         )
 
     emit:
-    aa_changes         = ch_aa_changes
+    aa_changes          = ch_aa_changes
     ranges_mzml         = ch_ranges_mzml
     versions            = ch_versions
+    params_merger_fetch = merger_fetch_params
     params_database     = database_params
     params_protgraph    = protgraph_params
     params_bpcsr_reader = bpcsr_reader_params

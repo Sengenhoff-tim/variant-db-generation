@@ -31,6 +31,7 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     samplesheet // channel: samplesheet read in from --input
     ranges_mzml
     params_database
+    params_merger_fetch
     params_querybuilder
     params_protgraph
     params_bpcsr_reader
@@ -44,6 +45,7 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
         samplesheet,
         ranges_mzml,
         params_database,
+        params_merger_fetch,
         params_querybuilder,
         params_protgraph,
         params_bpcsr_reader,
@@ -91,10 +93,18 @@ workflow {
         params.show_hidden,
         
         // Source database params
-        params.uniprot_source_file,
-        params.confirmed_only,
-        params.use_ensembl_fallback,
-        
+
+        // merger source database params
+        params.uniprot_accessions,
+        params.ebi_variants,
+        params.ebi_source_type,
+        params.uniprot_variants,
+        params.ensembl_fallback,
+
+        // merger fetch params
+        params.merger_timeout_secs,
+        params.merger_fetch_retries,
+        params.merger_retry_backoff_ms,
 
         // ProtGraph options
         params.protgraph_additional_params,
@@ -117,6 +127,7 @@ workflow {
         PIPELINE_INITIALISATION.out.samplesheet,
         PIPELINE_INITIALISATION.out.ranges,
         PIPELINE_INITIALISATION.out.params_database,
+        PIPELINE_INITIALISATION.out.params_merger_fetch,
         PIPELINE_INITIALISATION.out.params_querybuilder,
         PIPELINE_INITIALISATION.out.params_protgraph,
         PIPELINE_INITIALISATION.out.params_bpcsr_reader,

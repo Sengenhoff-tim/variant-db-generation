@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-build_protgraph() {
+build_reader() {
     docker build --no-cache \
         -f bin/Docker/protgraph_output_reader.Dockerfile \
         -t bpcsr_to_fasta:latest \
@@ -10,14 +10,14 @@ build_protgraph() {
 
 build_merger() {
     docker build --no-cache \
-        -f bin/Docker/vcf_uniprot_merger.Dockerfile \
-        -t vcf_uniprot_merger:latest \
+        -f bin/Docker/sp_embl_builder.Dockerfile \
+        -t sp_embl_builder:latest \
         bin/Docker
 }
 
 case "${1:-all}" in
-    protgraph) build_protgraph ;;
+    reader)    build_reader ;;
     merger)    build_merger ;;
-    all)       build_protgraph && build_merger ;;
-    *)         echo "Usage: $0 [protgraph|merger|all]" && exit 1 ;;
+    all)       build_reader && build_merger ;;
+    *)         echo "Usage: $0 [reader|merger|all]" && exit 1 ;;
 esac

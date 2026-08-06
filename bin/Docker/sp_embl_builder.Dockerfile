@@ -2,7 +2,7 @@ FROM rust:latest AS builder
 
 WORKDIR /app
 
-RUN git clone https://github.com/Sengenhoff-tim/vcf_uniprot_merger .
+RUN git clone https://github.com/Sengenhoff-tim/sp_embl_builder .
 
 RUN cargo build --release
 
@@ -12,4 +12,4 @@ WORKDIR /work
 
 RUN apt-get update && apt-get install -y ca-certificates procps && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/vcf_uniprot_merger /usr/local/bin/vcf_uniprot_merger
+COPY --from=builder /app/target/release/sp_embl_builder /usr/local/bin/sp_embl_builder
