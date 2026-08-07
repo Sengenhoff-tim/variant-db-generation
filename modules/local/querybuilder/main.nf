@@ -22,28 +22,23 @@ process QUERYBUILDER {
     // TODO nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'oras://community.wave.seqera.io/library/pip_pyteomics:5ef0f3279577134e':
-        'community.wave.seqera.io/library/pip_pyteomics:4acc0d8c9d2d6c28' }"
+        'oras://community.wave.seqera.io/library/pip_pyteomics:e073d33b768f0977':
+        'community.wave.seqera.io/library/pip_pyteomics:79df658015035ebe' }"
 
     input:
-    tuple val(meta), path(mzml), path(existing_ranges, stageAs: 'existing_ranges.csv'), val(out_name)
-    tuple val(ppm)
+    tuple val(meta), path(mzml), path(existing_ranges), val(out_name)
+    val(ppm)
 
     output:
     tuple val(meta), path(out_name), emit: csv
-    
-    //TODO fix version
-    tuple val("${task.process}"), val('extract_masses'), val("dev"), topic: versions, emit: versions_extract_masses
+    tuple val("${task.process}"), val('extract_masses'), val('dev'), emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def has_existing = existing_ranges.name != 'NO_FILE'
     """
-    ${has_existing ? "cp ${existing_ranges} ${out_name}" : ''}
     extract_masses.py \\
         ${args} \\
         -i ${mzml} \\
@@ -53,17 +48,7 @@ process QUERYBUILDER {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    // TODO nf-core: A stub section should mimic the execution of the original module as best as possible
-    //               Have a look at the following examples:
-    //               Simple example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bcftools/annotate/main.nf#L47-L63
-    //               Complex example: https://github.com/nf-core/modules/blob/818474a292b4860ae8ff88e149fbcda68814114d/modules/nf-core/bedtools/split/main.nf#L38-L54
-    // TODO nf-core: If the module doesn't use arguments ($args), you SHOULD remove:
-    //               - The definition of args `def args = task.ext.args ?: ''` above.
-    //               - The use of the variable in the script `echo $args ` below.
     """
-    echo $args
-    
-    touch ${prefix}.bam
+        touch ${out_name}
     """
 }

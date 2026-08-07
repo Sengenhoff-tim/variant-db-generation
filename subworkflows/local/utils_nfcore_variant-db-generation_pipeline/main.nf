@@ -72,6 +72,9 @@ workflow PIPELINE_INITIALISATION {
     elbpcsr_pdb
     protgraph_additional_params
 
+    //query builder params
+    query_builder_ppm
+
     // ProtGraph bpcsr reader options
     bpcsr_reader_hash_bits
     bpcsr_reader_bin_size       
@@ -125,21 +128,28 @@ workflow PIPELINE_INITIALISATION {
     //
 
     channel
-        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map { meta, aa_change, ranges, mzml ->
-            if (!ranges && !mzml) {
-                exit 1, "Sample '${meta.id}': at least one of 'ranges' or 'mzml' must be provided in the samplesheet."
-            }
-            tuple(meta, [aa_change], ranges, mzml)
+    .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
+    .map { meta, aa_change, ranges, mzml ->
+        if (!ranges && !mzml) {
+            exit 1, "Sample '${meta.id}': at least one of 'ranges' or 'mzml' must be provided in the samplesheet."
         }
-        .multiMap { meta, aa_change, ranges, mzml ->
-            aa_changes          : tuple(meta, aa_change)
-            ranges_mzml         : tuple(meta, ranges, mzml)
-        }
-        .set { ch_out }
+        tuple(meta, [aa_change], ranges, mzml)
+    }
+    .multiMap { meta, aa_change, ranges, mzml ->
+        aa_changes          : tuple(meta, aa_change)
+        ranges_mzml         : tuple(meta, ranges, mzml)
+    }
+    .set { ch_out }
 
-    ch_out.aa_changes.set { ch_aa_changes }
-    ch_out.ranges_mzml.set { ch_ranges_mzml }
+ch_aa_changes = ch_out.aa_changes
+ch_ranges_mzml = ch_out.ranges_mzml
+
+
+
+    def querybuilder_params =
+        tuple(
+            query_builder_ppm
+        )
 
     def database_params = 
         tuple(
@@ -197,13 +207,14 @@ workflow PIPELINE_INITIALISATION {
         )
 
     emit:
-    aa_changes          = ch_aa_changes
-    ranges_mzml         = ch_ranges_mzml
-    versions            = ch_versions
-    params_merger_fetch = merger_fetch_params
-    params_database     = database_params
-    params_protgraph    = protgraph_params
-    params_bpcsr_reader = bpcsr_reader_params
+    aa_changes              = ch_aa_changes
+    ranges_mzml             = ch_ranges_mzml
+    versions                = ch_versions
+    params_merger_fetch     = merger_fetch_params
+    params_database         = database_params
+    params_protgraph        = protgraph_params
+    params_bpcsr_reader     = bpcsr_reader_params
+    params_querybuilder     = querybuilder_params
 }
 
 /*

@@ -18,23 +18,30 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.vcf(\\.gz)?$",
-                "errorMessage": "TODO '.vcf.gz'"
+                "errorMessage": "aa_changes must be a valid path to a '.vcf' or '.vcf.gz' file"
             },
             "ranges": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.csv$",
-                "errorMessage": "TODO '.txt.gz'"
+                "errorMessage": "ranges must be a valid path to a '.csv' file"
             },
             "mzml": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.mzml$",
-                "errorMessage": "TODO '.mzml'"
+                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.mz[Mm][Ll](\\.gz)?$",
+                "errorMessage": "mzml must be a valid path to a '.mzML' file"
             }
         },
-        "required": ["sample", "aa_changes", "ranges", "mzml"]
+        "required": ["sample", "aa_changes"],
+        "anyOf": [
+            { "required": ["ranges"] },
+            { "required": ["mzml"] }
+        ],
+        "errorMessage": {
+            "anyOf": "At least one of 'ranges' or 'mzml' must be provided"
+        }
     }
 }

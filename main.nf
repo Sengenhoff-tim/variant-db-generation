@@ -28,13 +28,13 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_vari
 workflow NFCORELIKE_VARIANT_DB_GENERATION {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    aa_changes // channel: samplesheet read in from --input
     ranges_mzml
     params_database
     params_merger_fetch
-    params_querybuilder
     params_protgraph
     params_bpcsr_reader
+    params_query_builder
 
     main:
 
@@ -42,13 +42,13 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     // WORKFLOW: Run pipeline
     //
     VARIANT_DB_GENERATION (
-        samplesheet,
+        aa_changes,
         ranges_mzml,
         params_database,
         params_merger_fetch,
-        params_querybuilder,
         params_protgraph,
         params_bpcsr_reader,
+        params_query_builder
     )
 }
 /*
@@ -113,6 +113,9 @@ workflow {
         params.protgraph_elbpcsr_pdb, 
         params.protgraph_additional_params,
 
+        // query builder
+        params.query_builder_ppm,
+
         // ProtGraph bpcsr reader options
         params.bpcsr_reader_hash_bits,
         params.bpcsr_reader_bin_size, 
@@ -128,13 +131,13 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORELIKE_VARIANT_DB_GENERATION (
-        PIPELINE_INITIALISATION.out.samplesheet,
-        PIPELINE_INITIALISATION.out.ranges,
+        PIPELINE_INITIALISATION.out.aa_changes,
+        PIPELINE_INITIALISATION.out.ranges_mzml,
         PIPELINE_INITIALISATION.out.params_database,
         PIPELINE_INITIALISATION.out.params_merger_fetch,
-        PIPELINE_INITIALISATION.out.params_querybuilder,
         PIPELINE_INITIALISATION.out.params_protgraph,
         PIPELINE_INITIALISATION.out.params_bpcsr_reader,
+        PIPELINE_INITIALISATION.out.params_querybuilder,
     )
     //
     // SUBWORKFLOW: Run completion tasks

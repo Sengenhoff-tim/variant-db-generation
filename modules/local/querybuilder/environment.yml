@@ -4,4 +4,4 @@ channels:
 dependencies:
 - pip
 - pip:
-  - pyteomics==5.0
+  - pyteomics==5.0.1

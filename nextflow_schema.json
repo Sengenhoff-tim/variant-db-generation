@@ -5,6 +5,20 @@
     "description": "TODO",
     "type": "object",
     "$defs": {
+        "query_uilder_params": {
+            "title": "Query uilder params",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "query_builder_ppm": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "ppm window for building ranges based on a input mzML file"
+                }
+            },
+            "required": ["query_builder_ppm"]
+        },
         "general_parameters": {
             "title": "General parameters",
             "type": "object",
@@ -339,6 +353,9 @@
         }
     },
     "allOf": [
+        {
+            "$ref": "#/$defs/query_uilder_params"
+        },
         {
             "$ref": "#/$defs/general_parameters"
         },

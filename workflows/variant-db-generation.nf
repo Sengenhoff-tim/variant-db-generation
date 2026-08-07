@@ -25,9 +25,9 @@ workflow VARIANT_DB_GENERATION {
     ch_ranges_mzml
     database_params
     merger_fetch_params
-    querybuilder_params
     protgraph_params
     bpcsr_reader_params
+    querybuilder_params
     main:
 
     ch_versions = channel.empty()
@@ -36,7 +36,7 @@ workflow VARIANT_DB_GENERATION {
 
     ADDVARIANTS(BCFTOOLSPLUGINSPLITVEP.out.gz, database_params, merger_fetch_params)
     
-    PROTGRAPH(ADDVARIANTS.out.gz, protgraph_params)
+    PROTGRAPH(ADDVARIANTS.out.txt, protgraph_params)
 
     ch_ranges_mzml
         .branch { _meta, ranges, mzml ->
