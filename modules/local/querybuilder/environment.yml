@@ -2,6 +2,4 @@ channels:
 - conda-forge
 - bioconda
 dependencies:
-- pip
-- pip:
-  - pyteomics==5.0.1
+- bioconda::pyteomics=4.7.5

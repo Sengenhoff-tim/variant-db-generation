@@ -68,7 +68,7 @@ process CREATEPRECURSERFASTA {
         --outdir output_${prefix} \\
         ${zip} \\
         --max_vars ${max_variants} \\
-        --max_cleavages ${max_misscleavages} \\
+        --max_missed_cleavages ${max_misscleavages} \\
         --lower_bound ${min_da} \\
         --upper_bound ${max_da} \\
         --avail_processors ${task.cpus} \\

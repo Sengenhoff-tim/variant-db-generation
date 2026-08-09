@@ -5,7 +5,7 @@ process ADDVARIANTS {
     //conda "${moduleDir}/environment.yml"
 
     //TODO add singluarity/conda
-    container "vcf_uniprot_merger:latest"
+    container "sp_embl_builder:latest"
 
     input:
     tuple val(meta), path(input)
@@ -15,7 +15,7 @@ process ADDVARIANTS {
     output:
     tuple val(meta), path("*_merged.txt"), emit: txt // TODO .txt or .gz: unclear
     //TODO fix version
-    tuple val("${task.process}"), val('vcf_uniprot_merger'), val("dev"), topic: versions, emit: vcf_uniprot_merger
+    tuple val("${task.process}"), val('sp_embl_builder'), val("dev"), topic: versions, emit: vcf_uniprot_merger
     
     when:
     task.ext.when == null || task.ext.when
@@ -27,19 +27,21 @@ process ADDVARIANTS {
     // TODO nf-core: If the tool supports multi-threading then you MUST provide the appropriate parameter
     //               using the Nextflow "task" variable e.g. "--threads $task.cpus"
 
+    def source_type_flag = ebi_source_type ? "--source-type=${ebi_source_type}" : ''
+
     """
-    vcf_uniprot_merger \\
+    sp_embl_builder \\
         --variants ${input} \\
         --accessions ${uniprot_accessions} \\
         --output ${prefix}_merged.txt \\
-        --ebi_varaints ${ebi_variants} \\
-        --source_type ${ebi_source_type} \\
-        --uniprot_variants ${uniprot_variants} \\
-        --ensembl_fallback ${ensembl_fallback} \\
+        --ebi-variants=${ebi_variants} \\
+        ${source_type_flag} \\
+        --uniprot-variants=${uniprot_variants} \\
+        --ensembl-fallback=${ensembl_fallback} \\
         --exceptions ${prefix}_exceptions.log \\
-        --timeout_secs ${merger_timeout_secs} \\
-        --max_attempts ${merger_fetch_retries} \\
-        --retry_backoff_ms ${merger_retry_backoff_ms}
+        --timeout-secs ${merger_timeout_secs} \\
+        --max-attempts ${merger_fetch_retries} \\
+        --retry-backoff-ms ${merger_retry_backoff_ms}
     """
     /*
     stub:

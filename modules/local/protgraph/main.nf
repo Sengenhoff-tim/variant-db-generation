@@ -35,10 +35,16 @@ process PROTGRAPH {
     // TODO nf-core: It MUST be possible to pass additional parameters to the tool as a command-line string via the "task.ext.args" directive
     // TODO nf-core: If the tool supports multi-threading then you MUST provide the appropriate parameter
     //               using the Nextflow "task" variable e.g. "--threads $task.cpus"
-
+    def mass_annot = "-${mass_annotation}"
+    def fixm = ""
+    if (fixed_mod) {
+        fixm = fixed_mod
+    }
+    def varm = ""
+    if (var_mod) {
+        varm = var_mod
+    }
     """ 
-        gzip -cdf ${input} > ${prefix}.txt
-
         protgraph \\
             -eo ${prefix} \\
             -elbpcsr_pdb ${elbpcsr_pdb} \\
@@ -47,12 +53,12 @@ process PROTGRAPH {
             --pep_miscleavages ${max_miscleavages} \\
             --pep_min_weight ${pep_min_weight} \\
             --pep_max_weight ${pep_max_weight} \\
-            ${mass_annotation} \\
-            ${fixed_mod} \\
-            ${var_mod} \\
+            ${mass_annot} \\
+            ${fixm} \\
+            ${varm} \\
             ${args} \\
             ${addititonal_params} \\
-            ${prefix}.txt
+            ${input}
     """
 
     stub:

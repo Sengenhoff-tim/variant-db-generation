@@ -23,11 +23,11 @@ process QUERYBUILDER {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://community.wave.seqera.io/library/pip_pyteomics:e073d33b768f0977':
-        'community.wave.seqera.io/library/pip_pyteomics:79df658015035ebe' }"
+        'community.wave.seqera.io/library/pyteomics_numpy:f5de7521521b2791' }"
 
     input:
     tuple val(meta), path(mzml), path(existing_ranges), val(out_name)
-    val(ppm)
+    tuple val(ppm)
 
     output:
     tuple val(meta), path(out_name), emit: csv
@@ -40,10 +40,10 @@ process QUERYBUILDER {
     def args = task.ext.args ?: ''
     """
     extract_masses.py \\
-        ${args} \\
         -i ${mzml} \\
         -o ${out_name} \\
-        -p ${ppm}
+        -p ${ppm} \\
+        ${args}
     """
 
     stub:

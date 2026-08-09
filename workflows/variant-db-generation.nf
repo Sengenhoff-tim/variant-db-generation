@@ -59,6 +59,7 @@ workflow VARIANT_DB_GENERATION {
     QUERYBUILDER(ch_to_extract, querybuilder_params)
 
     ch_final_ranges = QUERYBUILDER.out.csv.mix(ch_ranges_passthrough)
+        .map { _meta, csv -> csv }  
 
     CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_final_ranges, bpcsr_reader_params)
 
