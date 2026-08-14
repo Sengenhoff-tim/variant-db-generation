@@ -24,7 +24,7 @@ process CREATEPRECURSERFASTA {
 
     input:
     tuple val(meta), path(input)
-    path(queries_csv)
+    tuple val(meta2), path(queries_csv)
     tuple (
         val(max_variants),
         val(max_misscleavages),

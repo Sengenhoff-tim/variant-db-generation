@@ -29,7 +29,7 @@ process QUERYBUILDER {
     tuple val(meta), path(mzml), val(ppm)
 
     output:
-    tuple val(meta), path("${meta}_ranges.csv"), emit: csv
+    tuple val(meta), path("*_ranges.csv"), emit: csv
     tuple val("${task.process}"), val('extract_masses'), val('dev'), emit: versions
 
     when:
@@ -37,17 +37,19 @@ process QUERYBUILDER {
 
     script:
     def args = task.ext.args ?: ''
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     extract_masses.py \\
         -i ${mzml} \\
-        -o ${meta}_ranges.csv \\
+        -o ${prefix}_ranges.csv \\
         -p ${ppm} \\
         ${args}
     """
 
     stub:
     def args = task.ext.args ?: ''
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
-        touch ${meta}_ranges.csv
+        touch ${prefix}_ranges.csv
     """
 }

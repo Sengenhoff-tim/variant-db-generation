@@ -1,2 +1,2 @@
-sample,aa_changes,ranges,mzml
-SAMPLE,/path/to/aa/change/file.vcf.gz,/path/to/range/file.csv,/path/to/mzml/file.mzml
+sample,aa_changes,mzml
+SAMPLE,/path/to/aa/change/file.vcf.gz,/path/to/mzml/file.mzml

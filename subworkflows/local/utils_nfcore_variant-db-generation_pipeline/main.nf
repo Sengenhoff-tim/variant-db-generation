@@ -133,11 +133,11 @@ workflow PIPELINE_INITIALISATION {
             tuple(meta, aa_change, mzml)
         }
 
-    ch_mzml = ch_samplesheet.map { meta, aa_change, mzml ->
-        tuple(meta, mzml)
+    ch_mzml = ch_samplesheet.map { meta, aa_change, _mzml ->
+        tuple(meta, aa_change)
     }
 
-    ch_querybuilder = ch_mzml.map { meta, mzml ->
+    ch_querybuilder = ch_samplesheet.map { meta, _aa_change, mzml ->
         tuple(meta, mzml, query_builder_ppm)
     }
 
