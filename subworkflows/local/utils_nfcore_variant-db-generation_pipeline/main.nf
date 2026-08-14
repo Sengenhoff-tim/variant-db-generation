@@ -127,29 +127,19 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
-    channel
-    .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-    .map { meta, aa_change, ranges, mzml ->
-        if (!ranges && !mzml) {
-            exit 1, "Sample '${meta.id}': at least one of 'ranges' or 'mzml' must be provided in the samplesheet."
+    ch_samplesheet = channel
+        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
+        .map { meta, aa_change, mzml ->
+            tuple(meta, aa_change, mzml)
         }
-        tuple(meta, [aa_change], ranges, mzml)
+
+    ch_mzml = ch_samplesheet.map { meta, aa_change, mzml ->
+        tuple(meta, mzml)
     }
-    .multiMap { meta, aa_change, ranges, mzml ->
-        aa_changes          : tuple(meta, aa_change)
-        ranges_mzml         : tuple(meta, ranges, mzml)
+
+    ch_querybuilder = ch_mzml.map { meta, mzml ->
+        tuple(meta, mzml, query_builder_ppm)
     }
-    .set { ch_out }
-
-ch_aa_changes = ch_out.aa_changes
-ch_ranges_mzml = ch_out.ranges_mzml
-
-
-
-    def querybuilder_params =
-        tuple(
-            query_builder_ppm
-        )
 
     def database_params = 
         tuple(
@@ -207,14 +197,13 @@ ch_ranges_mzml = ch_out.ranges_mzml
         )
 
     emit:
-    aa_changes              = ch_aa_changes
-    ranges_mzml             = ch_ranges_mzml
+    aa_changes              = ch_mzml
+    mzml                    = ch_querybuilder
     versions                = ch_versions
     params_merger_fetch     = merger_fetch_params
     params_database         = database_params
     params_protgraph        = protgraph_params
     params_bpcsr_reader     = bpcsr_reader_params
-    params_querybuilder     = querybuilder_params
 }
 
 /*

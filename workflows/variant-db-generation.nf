@@ -22,12 +22,11 @@ workflow VARIANT_DB_GENERATION {
 
     take:
     ch_aa_changes // channel: samplesheet read in from --input
-    ch_ranges_mzml
+    ch_mzml
     database_params
     merger_fetch_params
     protgraph_params
     bpcsr_reader_params
-    querybuilder_params
     main:
 
     ch_versions = channel.empty()
@@ -38,30 +37,9 @@ workflow VARIANT_DB_GENERATION {
     
     PROTGRAPH(ADDVARIANTS.out.txt, protgraph_params)
 
-    ch_ranges_mzml
-        .branch { _meta, ranges, mzml ->
-            mzml_only  : mzml && !ranges
-            both       : mzml && ranges
-            ranges_only: !mzml && ranges
-        }
-        .set { ch_branched }
+    QUERYBUILDER(ch_mzml)
 
-    ch_to_extract = ch_branched.both.mix(ch_branched.mzml_only)
-        .map { meta, ranges, mzml ->
-            def out_name = ranges ? file(ranges).name : "${meta.id}_mzml_ranges.csv"
-            def existing = ranges ? file(ranges) : file('NO_FILE')
-            tuple(meta, mzml, existing, out_name)
-        }
-
-    ch_ranges_passthrough = ch_branched.ranges_only
-        .map { meta, ranges, _mzml -> tuple(meta, ranges) }
-
-    QUERYBUILDER(ch_to_extract, querybuilder_params)
-
-    ch_final_ranges = QUERYBUILDER.out.csv.mix(ch_ranges_passthrough)
-        .map { _meta, csv -> csv }  
-
-    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, ch_final_ranges, bpcsr_reader_params)
+    CREATEPRECURSERFASTA(PROTGRAPH.out.bpcsr, QUERYBUILDER.out.csv, bpcsr_reader_params)
 
     
     //

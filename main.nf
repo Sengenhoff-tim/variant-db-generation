@@ -29,12 +29,11 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
 
     take:
     aa_changes // channel: samplesheet read in from --input
-    ranges_mzml
+    mzml
     params_database
     params_merger_fetch
     params_protgraph
     params_bpcsr_reader
-    params_query_builder
 
     main:
 
@@ -43,12 +42,11 @@ workflow NFCORELIKE_VARIANT_DB_GENERATION {
     //
     VARIANT_DB_GENERATION (
         aa_changes,
-        ranges_mzml,
+        mzml,
         params_database,
         params_merger_fetch,
         params_protgraph,
         params_bpcsr_reader,
-        params_query_builder
     )
 }
 /*
@@ -132,12 +130,11 @@ workflow {
     //
     NFCORELIKE_VARIANT_DB_GENERATION (
         PIPELINE_INITIALISATION.out.aa_changes,
-        PIPELINE_INITIALISATION.out.ranges_mzml,
+        PIPELINE_INITIALISATION.out.mzml,
         PIPELINE_INITIALISATION.out.params_database,
         PIPELINE_INITIALISATION.out.params_merger_fetch,
         PIPELINE_INITIALISATION.out.params_protgraph,
         PIPELINE_INITIALISATION.out.params_bpcsr_reader,
-        PIPELINE_INITIALISATION.out.params_querybuilder,
     )
     //
     // SUBWORKFLOW: Run completion tasks

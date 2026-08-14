@@ -26,11 +26,10 @@ process QUERYBUILDER {
         'community.wave.seqera.io/library/pyteomics_numpy:f5de7521521b2791' }"
 
     input:
-    tuple val(meta), path(mzml), path(existing_ranges), val(out_name)
-    tuple val(ppm)
+    tuple val(meta), path(mzml), val(ppm)
 
     output:
-    tuple val(meta), path(out_name), emit: csv
+    tuple val(meta), path("${meta}_ranges.csv"), emit: csv
     tuple val("${task.process}"), val('extract_masses'), val('dev'), emit: versions
 
     when:
@@ -41,7 +40,7 @@ process QUERYBUILDER {
     """
     extract_masses.py \\
         -i ${mzml} \\
-        -o ${out_name} \\
+        -o ${meta}_ranges.csv \\
         -p ${ppm} \\
         ${args}
     """
@@ -49,6 +48,6 @@ process QUERYBUILDER {
     stub:
     def args = task.ext.args ?: ''
     """
-        touch ${out_name}
+        touch ${meta}_ranges.csv
     """
 }

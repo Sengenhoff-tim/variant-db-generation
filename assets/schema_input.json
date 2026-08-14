@@ -20,13 +20,6 @@
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.vcf(\\.gz)?$",
                 "errorMessage": "aa_changes must be a valid path to a '.vcf' or '.vcf.gz' file"
             },
-            "ranges": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.csv$",
-                "errorMessage": "ranges must be a valid path to a '.csv' file"
-            },
             "mzml": {
                 "type": "string",
                 "format": "file-path",

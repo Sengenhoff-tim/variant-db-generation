@@ -1,6 +1,6 @@
 process ADDVARIANTS {
     tag "$meta.id"
-    label 'process_single'
+    label 'process_high'
 
     //conda "${moduleDir}/environment.yml"
 
