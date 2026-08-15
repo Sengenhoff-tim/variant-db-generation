@@ -30,9 +30,12 @@ process ADDVARIANTS {
     def source_type_flag = ebi_source_type ? "--source-type=${ebi_source_type}" : ''
 
     """
+    gunzip -cdf ${projectDir}/assets/TRS_idmap.txt.gz > TRS_idmap.txt
+
     sp_embl_builder \\
         --variants ${input} \\
         --accessions ${uniprot_accessions} \\
+        --idmapping TRS_idmap.txt \\
         --output ${prefix}_merged.txt \\
         --ebi-variants=${ebi_variants} \\
         ${source_type_flag} \\
